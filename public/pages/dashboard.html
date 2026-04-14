@@ -12,9 +12,11 @@
 <div class="layout">
 
 	<!-- Top nav -->
+
 	<nav class="topnav">
 		<span class="topnav-brand">Civic<span>Pulse</span></span>
 		<div class="topnav-right">
+			<button class="btn btn-ghost btn-sm" id="theme-toggle" title="Toggle dark/light mode">🌓</button>
 			<span class="topnav-user" id="nav-user"></span>
 			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
 		</div>
@@ -153,5 +155,22 @@
 <script src="../js/auth.js"></script>
 <script src="../js/map.js"></script>
 <script src="../js/report.js"></script>
+<script>
+// Dark/Light mode toggle logic
+function setTheme(theme) {
+	document.documentElement.setAttribute('data-theme', theme);
+	localStorage.setItem('cp_theme', theme);
+}
+function toggleTheme() {
+	const current = document.documentElement.getAttribute('data-theme') || 'light';
+	setTheme(current === 'dark' ? 'light' : 'dark');
+}
+document.getElementById('theme-toggle').onclick = toggleTheme;
+// On load, set theme from localStorage
+(function() {
+	const saved = localStorage.getItem('cp_theme');
+	if (saved) setTheme(saved);
+})();
+</script>
 </body>
 </html>

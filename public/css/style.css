@@ -1,3 +1,20 @@
+:root[data-theme='dark'] {
+	--navy:      #101a2b;
+	--blue:      #1a4a6e;
+	--teal:      #2e8ca3;
+	--sky:       #b3e0f7;
+	--accent:    #f5a623;
+	--white:     #181c22;
+	--offwhite:  #232b36;
+	--surface:   #232b36;
+	--border:    #2e3a4d;
+	--text:      #e3eaf2;
+	--muted:     #7ea0b8;
+	--danger:    #e57373;
+	--success:   #4caf50;
+	--warn:      #ffb300;
+	--shadow:    0 2px 12px rgba(10,22,40,0.30);
+}
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
