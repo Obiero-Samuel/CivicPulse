@@ -36,7 +36,10 @@ app.get('/api/categories', async (req, res) => {
 });
 
 
+
 // API routes
 app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 module.exports = app;
