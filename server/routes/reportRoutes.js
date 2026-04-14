@@ -4,6 +4,10 @@ const reportController = require('../controllers/reportController');
 const auth = require('../middleware/authMiddleware');
 const role = require('../middleware/roleMiddleware');
 
+
+// Resident: Create a new report (with tracking number)
+router.post('/', auth, reportController.createReport);
+
 // Officer: Get assigned reports
 router.get('/assigned', auth, role('officer'), reportController.getAssignedReports);
 

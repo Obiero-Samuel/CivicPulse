@@ -1,3 +1,17 @@
+// Resident creates a new report (with tracking number)
+exports.createReport = async (req, res) => {
+	try {
+		const userId = req.user.id;
+		const report = {
+			...req.body,
+			resident_id: userId
+		};
+		const created = await reportModel.createReport(report);
+		res.json({ report: created });
+	} catch (err) {
+		res.status(500).json({ error: 'Failed to create report.' });
+	}
+};
 const reportModel = require('../models/reportModel');
 
 // Get all reports assigned to officer's authority

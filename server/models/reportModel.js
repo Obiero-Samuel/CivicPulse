@@ -1,3 +1,21 @@
+// Generate a unique tracking number (e.g. CP-2026-00042)
+async function generateTrackingNumber() {
+	const year = new Date().getFullYear();
+	const result = await pool.query('SELECT nextval(pg_get_serial_sequence(\'reports\', \'id\')) AS seq');
+	const seq = result.rows[0].seq;
+	return `CP-${year}-${String(seq).padStart(5, '0')}`;
+}
+
+// Create a new report with tracking number
+async function createReport(report) {
+	const tracking_number = await generateTrackingNumber();
+	const result = await pool.query(
+		`INSERT INTO reports (tracking_number, title, description, category_id, ward_id, resident_id, latitude, longitude)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+		[tracking_number, report.title, report.description, report.category_id, report.ward_id, report.resident_id, report.latitude, report.longitude]
+	);
+	return result.rows[0];
+}
 const pool = require('../config/db');
 
 // Get all reports assigned to a specific authority (for officer portal)
@@ -52,4 +70,6 @@ module.exports = {
 	getReportsByAuthority,
 	getAllReportsForAuthority,
 	updateReportStatus,
+	generateTrackingNumber,
+	createReport,
 };
