@@ -71,39 +71,20 @@ async function loadFormDropdowns() {
 }
 
 // Better: load categories from dedicated endpoint
+
 (async function loadCategories() {
 	try {
-		const res  = await fetch(`${API}/wards`);
-		// Temporary: hardcode while we add /api/categories endpoint
-		const cats = [
-			{ id:1, name:'Flooding & Drainage' },{ id:2, name:'Road Damage / Potholes' },
-			{ id:3, name:'Illegal Construction' },{ id:4, name:'Garbage & Waste' },
-			{ id:5, name:'Burst Sewer' },         { id:6, name:'Street Lighting' },
-			{ id:7, name:'Water Supply' },         { id:8, name:'Public Safety' },
-		];
-		const sel = document.getElementById('s-category');
+		const res  = await fetch(`${API}/categories`);
+		const data = await res.json();
+		const sel  = document.getElementById('s-category');
 		if (sel) {
-			cats.forEach(c => {
+			sel.innerHTML = '<option value="">— Select a category —</option>';
+			data.categories.forEach(c => {
 				const o = document.createElement('option');
-				o.value = c.id; o.textContent = c.name;
+				o.value       = c.id;
+				o.textContent = `${c.name} → ${c.authority}`;
 				sel.appendChild(o);
 			});
-		}
-	} catch (_) {}
-
-	try {
-		const res      = await fetch(`${API}/wards`);
-		const wardData = await res.json();
-		const wardSel  = document.getElementById('s-ward');
-		if (wardSel && wardData.wards) {
-			wardSel.innerHTML = '<option value="">— Select ward —</option>';
-			wardData.wards.forEach(w => {
-				const o = document.createElement('option');
-				o.value = w.id; o.textContent = `${w.name} (${w.subcounty})`;
-				wardSel.appendChild(o);
-			});
-			// Pre-select user's ward
-			if (user?.ward_id) wardSel.value = user.ward_id;
 		}
 	} catch (_) {}
 })();
