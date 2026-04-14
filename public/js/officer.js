@@ -21,9 +21,8 @@ function showPage(pageId, navEl) {
   document.getElementById(pageId)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
-  if (pageId === 'analytics-page') loadAnalytics();
-  if (pageId === 'manage-users-page') loadUsers();
-  if (pageId === 'manage-wards-page') loadWards();
+  if (pageId === 'assigned-page') loadAssignedReports();
+  if (pageId === 'all-page') loadAllReports();
 }
 
 function logout() {
@@ -32,69 +31,59 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-async function loadAnalytics() {
-  const el = document.getElementById('analytics-content');
+async function loadAssignedReports() {
+  const el = document.getElementById('assigned-list');
   if (!el) return;
   try {
-    const res = await fetch(`${API}/analytics/overview`, {
+    const res = await fetch(`${API}/reports/assigned`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
-    el.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-  } catch (err) {
-    el.innerHTML = '<p class="text-muted text-sm">Failed to load analytics.</p>';
-  }
-}
-
-async function loadUsers() {
-  const el = document.getElementById('users-list');
-  if (!el) return;
-  try {
-    const res = await fetch(`${API}/admin/users`, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await res.json();
-    if (!data.users || data.users.length === 0) {
-      el.innerHTML = '<p class="text-muted text-sm">No users found.</p>';
+    if (!data.reports || data.reports.length === 0) {
+      el.innerHTML = '<p class="text-muted text-sm">No assigned reports.</p>';
       return;
     }
-    el.innerHTML = data.users.map(u => `
+    el.innerHTML = data.reports.map(r => `
       <div class="report-item">
+        <div class="report-dot dot-${r.status}"></div>
         <div class="report-body">
-          <div class="report-title">${u.full_name || u.email}</div>
-          <div class="report-meta">${u.email} &bull; ${u.role}</div>
+          <div class="report-title">${r.title}</div>
+          <div class="report-meta">${r.category_name || ''} &bull; ${r.ward_name || ''}</div>
         </div>
+        <span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
       </div>
     `).join('');
   } catch (err) {
-    el.innerHTML = '<p class="text-muted text-sm">Failed to load users.</p>';
+    el.innerHTML = '<p class="text-muted text-sm">Failed to load assigned reports.</p>';
   }
 }
 
-async function loadWards() {
-  const el = document.getElementById('wards-list');
+async function loadAllReports() {
+  const el = document.getElementById('all-list');
   if (!el) return;
   try {
-    const res = await fetch(`${API}/wards`, {
+    const res = await fetch(`${API}/reports/all`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
-    if (!data.wards || data.wards.length === 0) {
-      el.innerHTML = '<p class="text-muted text-sm">No wards found.</p>';
+    if (!data.reports || data.reports.length === 0) {
+      el.innerHTML = '<p class="text-muted text-sm">No reports found.</p>';
       return;
     }
-    el.innerHTML = data.wards.map(w => `
+    el.innerHTML = data.reports.map(r => `
       <div class="report-item">
+        <div class="report-dot dot-${r.status}"></div>
         <div class="report-body">
-          <div class="report-title">${w.name}</div>
-          <div class="report-meta">${w.subcounty}</div>
+          <div class="report-title">${r.title}</div>
+          <div class="report-meta">${r.category_name || ''} &bull; ${r.ward_name || ''}</div>
         </div>
+        <span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
       </div>
     `).join('');
   } catch (err) {
-    el.innerHTML = '<p class="text-muted text-sm">Failed to load wards.</p>';
+    el.innerHTML = '<p class="text-muted text-sm">Failed to load reports.</p>';
   }
 }
 
 // Init
-loadAnalytics();
+loadAssignedReports();

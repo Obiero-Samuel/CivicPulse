@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>CivicPulse — Dashboard</title>
+	<link rel="stylesheet" href="../css/style.css"/>
+	<link rel="stylesheet" href="../css/dashboard.css"/>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+<div class="layout">
+
+	<!-- Top nav -->
+	<nav class="topnav">
+		<span class="topnav-brand">Civic<span>Pulse</span></span>
+		<div class="topnav-right">
+			<span class="topnav-user" id="nav-user"></span>
+			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+		</div>
+	</nav>
+
+	<div class="main">
+		<!-- Sidebar -->
+		<aside class="sidebar">
+			<div class="sidebar-section">Main</div>
+			<div class="nav-item active" onclick="showPage('map-page', this)">
+				<span class="icon">🗺</span> Ward Map
+			</div>
+			<div class="nav-item" onclick="showPage('my-reports-page', this)">
+				<span class="icon">📋</span> My Reports
+			</div>
+			<div class="nav-item" onclick="showPage('submit-page', this)">
+				<span class="icon">➕</span> Submit Issue
+			</div>
+			<div class="sidebar-bottom">
+				<div class="user-pill">
+					<div class="user-avatar" id="avatar-initials">?</div>
+					<div class="user-info">
+						<div class="name" id="sidebar-name">Loading...</div>
+						<div class="role">Resident</div>
+					</div>
+				</div>
+			</div>
+		</aside>
+
+		<!-- Content -->
+		<main class="content">
+
+			<!-- MAP PAGE -->
+			<div class="page active" id="map-page">
+				<div class="page-header">
+					<h2>Ward Map</h2>
+					<p>All reported issues in your community — click any pin to view details.</p>
+				</div>
+				<div class="card mb-2">
+					<div class="flex gap-2 items-center mb-2">
+						<select id="map-filter-status" class="form-group" style="margin:0;flex:1">
+							<option value="">All statuses</option>
+							<option value="open">Open</option>
+							<option value="in_progress">In progress</option>
+							<option value="resolved">Resolved</option>
+							<option value="escalated">Escalated</option>
+						</select>
+						<button class="btn btn-primary btn-sm" onclick="loadMap()">Filter</button>
+						<button class="btn btn-accent btn-sm" onclick="showPage('submit-page', null)">+ Report Issue</button>
+					</div>
+					<div class="map-wrap">
+						<div id="map"></div>
+					</div>
+				</div>
+				<!-- Recent reports list -->
+				<div class="card">
+					<h3 style="font-size:16px;margin-bottom:12px;color:var(--navy)">Recent reports</h3>
+					<div id="recent-list"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+
+			<!-- MY REPORTS PAGE -->
+			<div class="page" id="my-reports-page">
+				<div class="page-header">
+					<h2>My Reports</h2>
+					<p>Track the status of issues you have submitted.</p>
+				</div>
+				<div class="card">
+					<div id="my-reports-list"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+
+			<!-- SUBMIT PAGE -->
+			<div class="page" id="submit-page">
+				<div class="page-header">
+					<h2>Report an Issue</h2>
+					<p>Describe the problem clearly. Your report will be routed to the right authority automatically.</p>
+				</div>
+				<div class="card" style="max-width:580px">
+					<div class="alert alert-error"    id="submit-error"></div>
+					<div class="alert alert-success"  id="submit-success"></div>
+					<form id="submit-form">
+						<div class="form-group">
+							<label>Issue title</label>
+							<input type="text" id="s-title" placeholder="e.g. Flooded road on Ole Sangale" required/>
+						</div>
+						<div class="form-group">
+							<label>Category</label>
+							<select id="s-category" required>
+								<option value="">— Select a category —</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Ward</label>
+							<select id="s-ward" required>
+								<option value="">— Select ward —</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Street address or landmark</label>
+							<input type="text" id="s-address" placeholder="e.g. Near Nyayo Stadium gate"/>
+						</div>
+						<div class="grid-2">
+							<div class="form-group">
+								<label>Latitude (optional)</label>
+								<input type="number" id="s-lat" step="any" placeholder="-1.3028"/>
+							</div>
+							<div class="form-group">
+								<label>Longitude (optional)</label>
+								<input type="number" id="s-lng" step="any" placeholder="36.8147"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Description</label>
+							<textarea id="s-desc" placeholder="Describe the issue in detail — severity, who it affects, how long it has been present." required></textarea>
+						</div>
+						<button class="btn btn-primary btn-full" type="submit" id="submit-btn">Submit Report</button>
+					</form>
+				</div>
+			</div>
+
+		</main>
+	</div>
+</div>
+
+<!-- Report detail modal -->
+<div class="modal-overlay" id="report-modal">
+	<div class="modal">
+		<button class="modal-close" onclick="closeModal()">&times;</button>
+		<h3 id="modal-title">Report Details</h3>
+		<div id="modal-body"></div>
+	</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/map.js"></script>
+<script src="../js/report.js"></script>
+</body>
+</html>

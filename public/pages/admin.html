@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>CivicPulse — Admin Panel</title>
+	<link rel="stylesheet" href="../css/style.css"/>
+	<link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+<div class="layout">
+	<nav class="topnav">
+		<span class="topnav-brand">Civic<span>Pulse</span></span>
+		<div class="topnav-right">
+			<span class="topnav-user" id="nav-user"></span>
+			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+		</div>
+	</nav>
+	<div class="main">
+		<aside class="sidebar">
+			<div class="sidebar-section">Admin</div>
+			<div class="nav-item active" onclick="showPage('analytics-page', this)">
+				<span class="icon">📊</span> Analytics
+			</div>
+			<div class="nav-item" onclick="showPage('manage-users-page', this)">
+				<span class="icon">👤</span> Manage Users
+			</div>
+			<div class="nav-item" onclick="showPage('manage-wards-page', this)">
+				<span class="icon">🏘</span> Manage Wards
+			</div>
+			<div class="sidebar-bottom">
+				<div class="user-pill">
+					<div class="user-avatar" id="avatar-initials">?</div>
+					<div class="user-info">
+						<div class="name" id="sidebar-name">Loading...</div>
+						<div class="role">Admin</div>
+					</div>
+				</div>
+			</div>
+		</aside>
+		<main class="content">
+			<!-- Analytics -->
+			<div class="page active" id="analytics-page">
+				<div class="page-header">
+					<h2>Analytics</h2>
+					<p>Overview of reports, users, and system activity.</p>
+				</div>
+				<div class="card">
+					<div id="analytics-content"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+			<!-- Manage Users -->
+			<div class="page" id="manage-users-page">
+				<div class="page-header">
+					<h2>Manage Users</h2>
+					<p>View, edit, or remove users.</p>
+				</div>
+				<div class="card">
+					<div id="users-list"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+			<!-- Manage Wards -->
+			<div class="page" id="manage-wards-page">
+				<div class="page-header">
+					<h2>Manage Wards</h2>
+					<p>View and edit ward information.</p>
+				</div>
+				<div class="card">
+					<div id="wards-list"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>

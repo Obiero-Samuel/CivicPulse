@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>CivicPulse — Officer Portal</title>
+	<link rel="stylesheet" href="../css/style.css"/>
+	<link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+<div class="layout">
+	<nav class="topnav">
+		<span class="topnav-brand">Civic<span>Pulse</span></span>
+		<div class="topnav-right">
+			<span class="topnav-user" id="nav-user"></span>
+			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+		</div>
+	</nav>
+	<div class="main">
+		<aside class="sidebar">
+			<div class="sidebar-section">Officer</div>
+			<div class="nav-item active" onclick="showPage('assigned-page', this)">
+				<span class="icon">📋</span> Assigned Reports
+			</div>
+			<div class="nav-item" onclick="showPage('all-page', this)">
+				<span class="icon">🗺</span> All Reports
+			</div>
+			<div class="sidebar-bottom">
+				<div class="user-pill">
+					<div class="user-avatar" id="avatar-initials">?</div>
+					<div class="user-info">
+						<div class="name" id="sidebar-name">Loading...</div>
+						<div class="role">Officer</div>
+					</div>
+				</div>
+			</div>
+		</aside>
+		<main class="content">
+			<!-- Assigned Reports -->
+			<div class="page active" id="assigned-page">
+				<div class="page-header">
+					<h2>Assigned Reports</h2>
+					<p>Manage and resolve issues assigned to you.</p>
+				</div>
+				<div class="card">
+					<div id="assigned-list"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+			<!-- All Reports -->
+			<div class="page" id="all-page">
+				<div class="page-header">
+					<h2>All Reports</h2>
+					<p>View all reports in your jurisdiction.</p>
+				</div>
+				<div class="card">
+					<div id="all-list"><p class="text-muted text-sm">Loading...</p></div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/officer.js"></script>
+</body>
+</html>
