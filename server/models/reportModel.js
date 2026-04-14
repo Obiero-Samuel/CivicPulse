@@ -1,3 +1,15 @@
+// Escalate reports not resolved in 7 days
+async function escalateStaleReports() {
+	// Find reports in 'in_progress' or 'submitted' older than 7 days and not escalated
+	const result = await pool.query(
+		`UPDATE reports
+		 SET status = 'escalated', is_escalated = TRUE, escalated_at = NOW()
+		 WHERE (status = 'in_progress' OR status = 'submitted')
+			 AND is_escalated = FALSE
+			 AND created_at < NOW() - INTERVAL '7 days'
+		 RETURNING id, tracking_number`);
+	return result.rows;
+}
 // Generate a unique tracking number (e.g. CP-2026-00042)
 async function generateTrackingNumber() {
 	const year = new Date().getFullYear();
