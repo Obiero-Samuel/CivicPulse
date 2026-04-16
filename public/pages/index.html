@@ -3,48 +3,313 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CivicPulse — Sign in to report and track civic issues in Nairobi estates."/>
   <title>CivicPulse — Login</title>
   <link rel="stylesheet" href="../css/style.css"/>
   <style>
-    body { background: var(--navy); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .auth-wrap { width: 100%; max-width: 420px; padding: 20px; }
-    .auth-logo { text-align: center; margin-bottom: 32px; }
-    .auth-logo h1 { font-size: 32px; color: var(--white); font-weight: 700; }
-    .auth-logo h1 span { color: var(--accent); }
-    .auth-logo p { color: var(--sky); font-size: 14px; margin-top: 4px; }
-    .auth-card { background: var(--white); border-radius: 12px; padding: 32px; }
-    .auth-card h2 { font-size: 20px; color: var(--navy); margin-bottom: 24px; }
-    .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: var(--sky); }
-    .auth-footer a { color: var(--accent); font-weight: 600; }
+    body {
+      background: var(--bg-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Animated background ────────────────────────────── */
+    .auth-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .auth-bg::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      top: -10%;
+      left: -10%;
+      animation: floatOrb 18s ease-in-out infinite;
+    }
+    .auth-bg::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 229, 255, 0.10) 0%, transparent 70%);
+      bottom: -10%;
+      right: -10%;
+      animation: floatOrb 22s ease-in-out infinite reverse;
+    }
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25%      { transform: translate(60px, -40px) scale(1.1); }
+      50%      { transform: translate(-30px, 60px) scale(0.95); }
+      75%      { transform: translate(40px, 30px) scale(1.05); }
+    }
+
+    /* ── Mesh grid overlay ──────────────────────────────── */
+    .mesh-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ── Auth container ─────────────────────────────────── */
+    .auth-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 0;
+      width: 100%;
+      max-width: 960px;
+      min-height: 560px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(99, 102, 241, 0.08);
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Left panel — brand showcase ────────────────────── */
+    .auth-showcase {
+      flex: 1;
+      background: linear-gradient(135deg, #0f0c29 0%, #1a1145 40%, #302b63 70%, #24243e 100%);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-showcase::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0, 229, 255, 0.12) 0%, transparent 70%);
+      top: 10%;
+      right: -20%;
+      animation: floatOrb 15s ease-in-out infinite;
+    }
+    .auth-showcase::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .showcase-content {
+      position: relative;
+      z-index: 1;
+    }
+    .showcase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(0, 229, 255, 0.10);
+      border: 1px solid rgba(0, 229, 255, 0.20);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+    .showcase-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .showcase-title span {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .showcase-desc {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.7;
+      max-width: 320px;
+    }
+
+    .showcase-stats {
+      display: flex;
+      gap: 28px;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .showcase-stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .showcase-stat-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.40);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+
+    /* ── Right panel — form ─────────────────────────────── */
+    .auth-form-panel {
+      width: 420px;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .auth-form-header {
+      margin-bottom: 32px;
+    }
+    .auth-form-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .auth-form-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 20px 0;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .auth-footer a {
+      color: var(--neon-cyan);
+      font-weight: 600;
+    }
+    .auth-footer a:hover {
+      color: var(--neon-blue);
+    }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 800px) {
+      body { padding: 16px; }
+      .auth-container {
+        flex-direction: column;
+        max-width: 460px;
+        min-height: auto;
+      }
+      .auth-showcase {
+        padding: 32px 28px;
+      }
+      .showcase-stats { display: none; }
+      .auth-form-panel {
+        width: 100%;
+        padding: 32px 28px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="auth-wrap">
-    <div class="auth-logo">
-      <h1>Civic<span>Pulse</span></h1>
-      <p>Community Issue Reporting — Nairobi Estates</p>
+  <div class="auth-bg"></div>
+  <div class="mesh-grid"></div>
+
+  <div class="auth-container">
+    <!-- Left: Showcase -->
+    <div class="auth-showcase">
+      <div class="showcase-content">
+        <div class="showcase-badge">🏛 Civic Accountability Engine</div>
+        <h1 class="showcase-title">
+          Report. Track.<br/><span>Hold Accountable.</span>
+        </h1>
+        <p class="showcase-desc">
+          CivicPulse empowers Nairobi estate residents to report infrastructure issues,
+          track their resolution, and hold government authorities publicly accountable.
+        </p>
+        <div class="showcase-stats">
+          <div>
+            <div class="showcase-stat-value">17</div>
+            <div class="showcase-stat-label">Wards Covered</div>
+          </div>
+          <div>
+            <div class="showcase-stat-value">7</div>
+            <div class="showcase-stat-label">Authorities</div>
+          </div>
+          <div>
+            <div class="showcase-stat-value">24/7</div>
+            <div class="showcase-stat-label">Live Tracking</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="auth-card">
-      <h2>Sign in to your account</h2>
+
+    <!-- Right: Login Form -->
+    <div class="auth-form-panel">
+      <div class="auth-form-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to continue to CivicPulse</p>
+      </div>
+
       <div class="alert alert-error" id="error-msg"></div>
+
       <form id="login-form">
         <div class="form-group">
           <label for="email">Email address</label>
-          <input type="email" id="email" placeholder="you@example.com" required/>
+          <input type="email" id="email" placeholder="you@example.com" required autocomplete="email"/>
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" required/>
+          <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password"/>
         </div>
-        <button class="btn btn-primary btn-full mt-1" type="submit" id="login-btn">
+        <button class="btn btn-primary btn-full" type="submit" id="login-btn" style="margin-top: 8px; height: 46px; font-size: 14px;">
           Sign in
         </button>
       </form>
-    </div>
-    <div class="auth-footer">
-      Don't have an account? <a href="register.html">Register here</a>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
     </div>
   </div>
+
   <script src="../js/auth.js"></script>
 </body>
 </html>

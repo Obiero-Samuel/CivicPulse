@@ -44,16 +44,16 @@ function setTheme(theme) {
 	document.body.classList.toggle('dark', theme === 'dark');
 	localStorage.setItem('cp_theme', theme);
 	const btn = document.getElementById('theme-toggle');
-	if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌓';
+	if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 function toggleTheme() {
-	const current = localStorage.getItem('cp_theme') || 'light';
+	const current = localStorage.getItem('cp_theme') || 'dark';
 	setTheme(current === 'dark' ? 'light' : 'dark');
 }
 document.getElementById('theme-toggle').onclick = toggleTheme;
 (function() {
-	const saved = localStorage.getItem('cp_theme');
-	if (saved) setTheme(saved);
+	const saved = localStorage.getItem('cp_theme') || 'dark';
+	setTheme(saved);
 })();
 
 // ── Officer modal state ───────────────────────────────────────────────

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="CivicPulse Resident Dashboard — View the ward map, track your reports, and submit new civic issues." />
 	<title>CivicPulse — Resident Dashboard</title>
 	<link rel="stylesheet" href="../css/style.css" />
 	<link rel="stylesheet" href="../css/dashboard.css" />
@@ -11,9 +12,9 @@
 	<style>
 		/* ── Welcome card ───────────────────────────────── */
 		.welcome-card {
-			background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0891b2 100%);
-			border-radius: var(--radius-md);
-			padding: 24px 28px;
+			background: linear-gradient(135deg, #0f0c29 0%, #1a1145 35%, #302b63 65%, #24243e 100%);
+			border-radius: var(--radius-lg);
+			padding: 28px 32px;
 			color: white;
 			display: flex;
 			align-items: center;
@@ -21,58 +22,104 @@
 			margin-bottom: 24px;
 			position: relative;
 			overflow: hidden;
+			border: 1px solid rgba(99, 102, 241, 0.15);
+			box-shadow: 0 4px 24px rgba(99, 102, 241, 0.12);
+		}
+
+		.welcome-card::before {
+			content: '';
+			position: absolute;
+			width: 300px;
+			height: 300px;
+			background: radial-gradient(circle, rgba(0, 229, 255, 0.10) 0%, transparent 70%);
+			right: -60px;
+			top: -80px;
+			animation: floatSlow 18s ease-in-out infinite;
 		}
 
 		.welcome-card::after {
 			content: '';
 			position: absolute;
-			right: -40px;
-			top: -40px;
-			width: 160px;
-			height: 160px;
-			background: rgba(255, 255, 255, 0.06);
-			border-radius: 50%;
+			width: 200px;
+			height: 200px;
+			background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+			left: 30%;
+			bottom: -60px;
+		}
+
+		@keyframes floatSlow {
+			0%, 100% { transform: translate(0, 0); }
+			50% { transform: translate(-20px, 20px); }
 		}
 
 		.welcome-card h3 {
 			color: white;
-			font-size: 1.2rem;
-			margin-bottom: 4px;
-		}
-
-		.welcome-card p {
-			color: rgba(255, 255, 255, 0.8);
-			font-size: 0.875rem;
-			margin: 0;
-		}
-
-		.welcome-card .welcome-graphic {
-			width: 80px;
-			opacity: 0.9;
+			font-size: 1.25rem;
+			font-weight: 700;
+			margin-bottom: 6px;
 			position: relative;
 			z-index: 1;
 		}
 
-		/* ── Onboarding tip ─────────────────────────────── */
+		.welcome-card p {
+			color: rgba(255, 255, 255, 0.60);
+			font-size: 0.85rem;
+			margin: 0;
+			position: relative;
+			z-index: 1;
+		}
+
+		.welcome-stats {
+			display: flex;
+			gap: 24px;
+			margin-top: 16px;
+			position: relative;
+			z-index: 1;
+		}
+
+		.wstat {
+			text-align: center;
+		}
+
+		.wstat-value {
+			font-size: 1.4rem;
+			font-weight: 800;
+			color: #fff;
+			line-height: 1;
+		}
+
+		.wstat-label {
+			font-size: 0.65rem;
+			color: rgba(255, 255, 255, 0.45);
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			margin-top: 4px;
+		}
+
+		.welcome-card .welcome-graphic {
+			width: 90px;
+			opacity: 0.85;
+			position: relative;
+			z-index: 1;
+			filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.2));
+		}
+
+		/* ── Tip card ──────────────────────────────────── */
 		.tip-card {
-			background: #fffbeb;
-			border: 1.5px solid #fde68a;
+			background: rgba(245, 158, 11, 0.06);
+			border: 1px solid rgba(245, 158, 11, 0.15);
 			border-radius: var(--radius-md);
 			padding: 14px 18px;
 			display: flex;
 			align-items: flex-start;
 			gap: 12px;
 			margin-bottom: 24px;
-			font-size: 0.875rem;
-		}
-
-		[data-theme="dark"] .tip-card {
-			background: #1c1a08;
-			border-color: #854d0e;
+			font-size: 0.85rem;
+			backdrop-filter: blur(8px);
 		}
 
 		.tip-card .tip-icon {
-			font-size: 1.3rem;
+			font-size: 1.2rem;
 			flex-shrink: 0;
 			margin-top: 1px;
 		}
@@ -80,11 +127,11 @@
 		.tip-card .tip-text {
 			flex: 1;
 			color: var(--text-secondary);
-			line-height: 1.5;
+			line-height: 1.6;
 		}
 
 		.tip-card .tip-text strong {
-			color: var(--text-primary);
+			color: var(--warn);
 		}
 
 		.tip-dismiss {
@@ -95,13 +142,54 @@
 			font-size: 1.1rem;
 			padding: 0;
 			line-height: 1;
+			transition: var(--transition);
 		}
 
 		.tip-dismiss:hover {
 			color: var(--danger);
 		}
 
-		/* ── Empty state ────────────────────────────────── */
+		/* ── Quick actions ─────────────────────────────── */
+		.quick-actions {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 12px;
+			margin-bottom: 24px;
+		}
+
+		.quick-action-btn {
+			background: var(--bg-card);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			padding: 18px 14px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+			transition: var(--transition);
+			text-align: center;
+			backdrop-filter: blur(8px);
+		}
+
+		.quick-action-btn:hover {
+			border-color: var(--neon-cyan);
+			background: var(--accent-subtle);
+			transform: translateY(-3px);
+			box-shadow: var(--shadow-glow);
+		}
+
+		.quick-action-btn .qa-icon {
+			font-size: 1.5rem;
+		}
+
+		.quick-action-btn .qa-label {
+			font-size: 0.78rem;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		/* ── Empty state ───────────────────────────────── */
 		.empty-state-box {
 			display: flex;
 			flex-direction: column;
@@ -114,7 +202,7 @@
 		.empty-state-box img {
 			width: 120px;
 			margin-bottom: 16px;
-			opacity: 0.7;
+			opacity: 0.6;
 		}
 
 		.empty-state-box h4 {
@@ -124,47 +212,96 @@
 		}
 
 		.empty-state-box p {
-			font-size: 0.875rem;
+			font-size: 0.85rem;
 			color: var(--text-muted);
 			max-width: 280px;
 		}
 
-		/* ── Quick action buttons ───────────────────────── */
-		.quick-actions {
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 12px;
-			margin-bottom: 24px;
-		}
-
-		.quick-action-btn {
-			background: var(--bg-card);
-			border: 1.5px solid var(--border);
-			border-radius: var(--radius-md);
-			padding: 16px;
+		/* ── Map legend ────────────────────────────────── */
+		.map-legend {
 			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 8px;
-			cursor: pointer;
-			transition: var(--transition);
-			text-align: center;
+			gap: 16px;
+			flex-wrap: wrap;
+			margin-bottom: 12px;
+			font-size: 0.75rem;
+			color: var(--text-secondary);
 		}
 
-		.quick-action-btn:hover {
-			border-color: var(--accent);
-			background: var(--accent-light);
+		.map-legend-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.legend-dot {
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		/* ── How it works cards ────────────────────────── */
+		.how-card {
+			background: var(--bg-card);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			padding: 24px;
+			backdrop-filter: blur(8px);
+			transition: var(--transition);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.how-card:hover {
+			border-color: var(--border-strong);
 			transform: translateY(-2px);
 			box-shadow: var(--shadow-md);
 		}
 
-		.quick-action-btn .qa-icon {
-			font-size: 1.6rem;
+		.how-card .step-num {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			border-radius: var(--radius-full);
+			font-size: 13px;
+			font-weight: 800;
+			margin-bottom: 14px;
 		}
 
-		.quick-action-btn .qa-label {
-			font-size: 0.8rem;
-			font-weight: 600;
+		.how-card h3 {
+			font-size: 0.95rem;
+			font-weight: 700;
+			color: var(--text-primary);
+			margin-bottom: 8px;
+		}
+
+		.how-card p {
+			font-size: 0.83rem;
+			color: var(--text-secondary);
+			line-height: 1.6;
+		}
+
+		/* Authority grid */
+		.authority-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
+			font-size: 0.83rem;
+		}
+
+		.authority-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 12px;
+			background: var(--accent-subtle);
+			border-radius: var(--radius-sm);
+			color: var(--text-secondary);
+		}
+
+		.authority-item strong {
 			color: var(--text-primary);
 		}
 	</style>
@@ -176,7 +313,7 @@
 		<nav class="topnav">
 			<span class="topnav-brand">Civic<span>Pulse</span></span>
 			<div class="topnav-right">
-				<button class="theme-toggle" id="themeToggle">🌙</button>
+				<button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
 				<span class="topnav-user" id="nav-user"></span>
 				<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
 			</div>
@@ -218,15 +355,19 @@
 						<div>
 							<h3>Welcome back, <span id="welcome-name">Resident</span> 👋</h3>
 							<p>Your ward map is live. Report an issue or track existing ones below.</p>
-							<div style="display:flex;gap:16px;margin-top:12px;">
-								<div><span style="font-size:1.3rem;font-weight:700;" id="wc-open">—</span><br /><span
-										style="font-size:0.75rem;opacity:0.75;">Open Issues</span></div>
-								<div><span style="font-size:1.3rem;font-weight:700;"
-										id="wc-resolved">—</span><br /><span
-										style="font-size:0.75rem;opacity:0.75;">Resolved</span></div>
-								<div><span style="font-size:1.3rem;font-weight:700;"
-										id="wc-escalated">—</span><br /><span
-										style="font-size:0.75rem;opacity:0.75;">Escalated</span></div>
+							<div class="welcome-stats">
+								<div class="wstat">
+									<div class="wstat-value" id="wc-open">—</div>
+									<div class="wstat-label">Open</div>
+								</div>
+								<div class="wstat">
+									<div class="wstat-value" id="wc-resolved">—</div>
+									<div class="wstat-label">Resolved</div>
+								</div>
+								<div class="wstat">
+									<div class="wstat-value" id="wc-escalated">—</div>
+									<div class="wstat-label">Escalated</div>
+								</div>
 							</div>
 						</div>
 						<img src="../assets/welcome-graphic.svg" class="welcome-graphic" alt="" />
@@ -293,19 +434,27 @@
 							</div>
 						</div>
 						<!-- Map legend -->
-						<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:0.78rem;">
-							<span><span
-									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F59E0B;margin-right:4px;"></span>Submitted</span>
-							<span><span
-									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3B82F6;margin-right:4px;"></span>Under
-								Review</span>
-							<span><span
-									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#8B5CF6;margin-right:4px;"></span>In
-								Progress</span>
-							<span><span
-									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10B981;margin-right:4px;"></span>Resolved</span>
-							<span><span
-									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#EF4444;margin-right:4px;"></span>Escalated</span>
+						<div class="map-legend">
+							<div class="map-legend-item">
+								<div class="legend-dot" style="background:#F59E0B;box-shadow:0 0 6px #F59E0B;"></div>
+								Submitted
+							</div>
+							<div class="map-legend-item">
+								<div class="legend-dot" style="background:#3B82F6;box-shadow:0 0 6px #3B82F6;"></div>
+								Under Review
+							</div>
+							<div class="map-legend-item">
+								<div class="legend-dot" style="background:#8B5CF6;box-shadow:0 0 6px #8B5CF6;"></div>
+								In Progress
+							</div>
+							<div class="map-legend-item">
+								<div class="legend-dot" style="background:#10B981;box-shadow:0 0 6px #10B981;"></div>
+								Resolved
+							</div>
+							<div class="map-legend-item">
+								<div class="legend-dot" style="background:#EF4444;box-shadow:0 0 6px #EF4444;"></div>
+								Escalated
+							</div>
 						</div>
 						<div id="map" style="height:420px;border-radius:var(--radius-sm);"></div>
 					</div>
@@ -407,7 +556,7 @@
 									required></textarea>
 							</div>
 							<button class="btn btn-primary btn-block" type="submit" id="submit-btn"
-								style="margin-top:4px;">
+								style="margin-top:4px;height:46px;font-size:14px;">
 								Submit Report
 							</button>
 						</form>
@@ -421,43 +570,42 @@
 						<p>A quick guide to getting results for your community.</p>
 					</div>
 					<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px;">
-						<div class="card" style="border-left:4px solid var(--accent);">
-							<div style="font-size:2rem;margin-bottom:12px;">1️⃣</div>
-							<h3 style="font-size:1rem;margin-bottom:8px;">Submit a Report</h3>
-							<p style="font-size:0.875rem;">Describe the issue, pick a category and ward, drop a map pin.
+						<div class="how-card">
+							<div class="step-num" style="background:var(--warn-bg);color:var(--warn);">1</div>
+							<h3>Submit a Report</h3>
+							<p>Describe the issue, pick a category and ward, drop a map pin.
 								Your report gets a unique tracking number instantly.</p>
 						</div>
-						<div class="card" style="border-left:4px solid #8B5CF6;">
-							<div style="font-size:2rem;margin-bottom:12px;">2️⃣</div>
-							<h3 style="font-size:1rem;margin-bottom:8px;">Auto-Routing</h3>
-							<p style="font-size:0.875rem;">CivicPulse automatically assigns your report to the correct
+						<div class="how-card">
+							<div class="step-num" style="background:rgba(139,92,246,0.12);color:#8B5CF6;">2</div>
+							<h3>Auto-Routing</h3>
+							<p>CivicPulse automatically assigns your report to the correct
 								authority — KURA for roads, Nairobi Water for pipes, KPLC for lighting, etc.</p>
 						</div>
-						<div class="card" style="border-left:4px solid #10B981;">
-							<div style="font-size:2rem;margin-bottom:12px;">3️⃣</div>
-							<h3 style="font-size:1rem;margin-bottom:8px;">Track Progress</h3>
-							<p style="font-size:0.875rem;">Check <em>My Reports</em> to see status updates. Authority
+						<div class="how-card">
+							<div class="step-num" style="background:var(--success-bg);color:var(--success);">3</div>
+							<h3>Track Progress</h3>
+							<p>Check <em>My Reports</em> to see status updates. Authority
 								officers post notes as they work on your issue.</p>
 						</div>
-						<div class="card" style="border-left:4px solid #F59E0B;">
-							<div style="font-size:2rem;margin-bottom:12px;">4️⃣</div>
-							<h3 style="font-size:1rem;margin-bottom:8px;">Upvote & Escalate</h3>
-							<p style="font-size:0.875rem;">Upvote reports that affect you too. Reports with many upvotes
+						<div class="how-card">
+							<div class="step-num" style="background:var(--danger-bg);color:var(--danger);">4</div>
+							<h3>Upvote & Escalate</h3>
+							<p>Upvote reports that affect you too. Reports with many upvotes
 								get escalated automatically, putting pressure on the responsible authority.</p>
 						</div>
 					</div>
 
-					<div class="card mt-16"
-						style="max-width:800px;background:var(--accent-light);border-color:var(--accent);">
-						<h3 style="font-size:1rem;margin-bottom:12px;">🗺 Authorities & What They Handle</h3>
-						<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.875rem;">
-							<div>🚰 <strong>Nairobi Water</strong> — Pipes, sewers, drainage, water supply</div>
-							<div>🛣 <strong>KURA</strong> — Roads, potholes, pavements, signage</div>
-							<div>💡 <strong>KPLC</strong> — Street lights, power outages, wiring</div>
-							<div>🗑 <strong>Public Health</strong> — Garbage, sanitation, stagnant water</div>
-							<div>🌳 <strong>Environment</strong> — Deforestation, pollution, dumping</div>
-							<div>🏗 <strong>NCA</strong> — Illegal construction, unsafe structures</div>
-							<div>🏛 <strong>NMS</strong> — Public facilities, parks, bus stops</div>
+					<div class="card" style="max-width:800px;margin-top:20px;">
+						<h3 style="font-size:1rem;margin-bottom:14px;">🗺 Authorities & What They Handle</h3>
+						<div class="authority-grid">
+							<div class="authority-item">🚰 <strong>Nairobi Water</strong> — Pipes, sewers, drainage</div>
+							<div class="authority-item">🛣 <strong>KURA</strong> — Roads, potholes, signage</div>
+							<div class="authority-item">💡 <strong>KPLC</strong> — Street lights, power</div>
+							<div class="authority-item">🗑 <strong>Public Health</strong> — Garbage, sanitation</div>
+							<div class="authority-item">🌳 <strong>Environment</strong> — Pollution, dumping</div>
+							<div class="authority-item">🏗 <strong>NCA</strong> — Illegal construction</div>
+							<div class="authority-item">🏛 <strong>NMS</strong> — Public facilities, parks</div>
 						</div>
 					</div>
 				</div>
@@ -507,3 +655,6 @@
 				document.getElementById('s-escalated').textContent = reports.filter(r => r.status === 'escalated').length;
 			} catch (_) { }
 		})();
+	</script>
+</body>
+</html>

@@ -13,7 +13,7 @@ const applyTheme = (t) => {
 	const btn = document.getElementById('themeToggle');
 	if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
 };
-applyTheme(localStorage.getItem('cp_theme') || 'light');
+applyTheme(localStorage.getItem('cp_theme') || 'dark');
 document.getElementById('themeToggle')?.addEventListener('click', () => {
 	const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
 	applyTheme(next); localStorage.setItem('cp_theme', next);
