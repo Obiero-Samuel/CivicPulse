@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./server/config/env');  // validate required env vars on startup
 
 const app = require('./server/app');
 const { startEscalationJob } = require('./server/jobs/escalationJob');

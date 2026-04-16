@@ -1,11 +1,13 @@
 /* ============================================================
    CivicPulse — report.js  (enhanced)
+   Depends on: auth.js (API_BASE, getToken, getUser, logout, esc)
    ============================================================ */
-const API = 'http://localhost:5000/api';
-const token = localStorage.getItem('cp_token');
-const user = JSON.parse(localStorage.getItem('cp_user') || 'null');
 
-if (!token || !user) window.location.href = 'index.html';
+// Use helpers from auth.js — no redeclarations
+const _token = getToken();
+const _user = getUser();
+
+if (!_token || !_user) window.location.href = 'index.html';
 
 // ── Theme ─────────────────────────────────────────────────────
 const applyTheme = (t) => {
@@ -20,14 +22,16 @@ document.getElementById('themeToggle')?.addEventListener('click', () => {
 });
 
 // ── Nav user info ─────────────────────────────────────────────
-if (user) {
-	const initials = user.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
+if (_user) {
+	const initials = _user.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
 	const el = document.getElementById('avatar-initials');
 	if (el) el.textContent = initials;
 	const nameEl = document.getElementById('sidebar-name');
-	if (nameEl) nameEl.textContent = user.full_name || user.email;
+	if (nameEl) nameEl.textContent = _user.full_name || _user.email;
 	const navUser = document.getElementById('nav-user');
-	if (navUser) navUser.textContent = user.full_name || '';
+	if (navUser) navUser.textContent = _user.full_name || '';
+	const welcomeName = document.getElementById('welcome-name');
+	if (welcomeName) welcomeName.textContent = _user.full_name?.split(' ')[0] || 'Resident';
 }
 
 // ── Page switching ────────────────────────────────────────────
@@ -38,21 +42,14 @@ function showPage(pageId, navEl) {
 	if (navEl) navEl.classList.add('active');
 	if (pageId === 'map-page') { initMap(); loadMyReportsList(); }
 	if (pageId === 'my-reports-page') loadMyReportsList();
-	if (pageId === 'submit-page') loadFormDropdowns();
-}
-
-function logout() {
-	localStorage.removeItem('cp_token');
-	localStorage.removeItem('cp_user');
-	window.location.href = 'index.html';
 }
 
 // ── Load form dropdowns ───────────────────────────────────────
 async function loadFormDropdowns() {
 	try {
 		const [catRes, wardRes] = await Promise.all([
-			fetch(`${API}/categories`),
-			fetch(`${API}/wards`),
+			fetch(`${API_BASE}/categories`),
+			fetch(`${API_BASE}/wards`),
 		]);
 		const catData = await catRes.json();
 		const wardData = await wardRes.json();
@@ -78,7 +75,7 @@ async function loadFormDropdowns() {
 				o.textContent = `${w.name} (${w.subcounty})`;
 				wardSel.appendChild(o);
 			});
-			if (user?.ward_id) wardSel.value = user.ward_id;
+			if (_user?.ward_id) wardSel.value = _user.ward_id;
 		}
 	} catch (err) {
 		console.warn('Dropdown load failed:', err.message);
@@ -108,9 +105,9 @@ document.getElementById('submit-form')?.addEventListener('submit', async (e) => 
 	};
 
 	try {
-		const res = await fetch(`${API}/reports`, {
+		const res = await fetch(`${API_BASE}/reports`, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+			headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token },
 			body: JSON.stringify(body),
 		});
 		const data = await res.json();
@@ -122,7 +119,10 @@ document.getElementById('submit-form')?.addEventListener('submit', async (e) => 
 			successEl.textContent = `✅ Report submitted! Tracking number: ${data.report?.tracking_number || '#' + data.report?.id}`;
 			successEl.style.display = 'block';
 			e.target.reset();
-			setTimeout(() => showPage('map-page', document.querySelector('.nav-item')), 2200);
+			setTimeout(() => {
+				closeReportModal();
+				showPage('map-page', document.querySelector('.nav-item'));
+			}, 2200);
 		}
 	} catch {
 		errEl.textContent = 'Network error. Is the server running?';
@@ -139,7 +139,7 @@ async function loadMyReportsList() {
 	if (!el) return;
 
 	try {
-		const res = await fetch(`${API}/reports/my`, { headers: { 'Authorization': 'Bearer ' + token } });
+		const res = await fetch(`${API_BASE}/reports/my`, { headers: { 'Authorization': 'Bearer ' + _token } });
 		const data = await res.json();
 
 		if (!data.reports?.length) {
@@ -148,7 +148,7 @@ async function loadMyReportsList() {
           <img src="../assets/empty-reports.svg" alt="No reports"/>
           <h4>No reports yet</h4>
           <p>You haven't submitted any civic issues. Spot a problem in your ward? Report it — it takes under a minute.</p>
-          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="showPage('submit-page',null)">+ Submit your first report</button>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="openReportModal()">+ Submit your first report</button>
         </div>`;
 			return;
 		}
@@ -157,8 +157,8 @@ async function loadMyReportsList() {
       <div class="report-item" onclick="viewReport(${r.id})">
         <div class="report-dot dot-${r.status}"></div>
         <div class="report-body">
-          <div class="report-title">${r.title}</div>
-          <div class="report-meta">${r.category_name || ''} &bull; ${new Date(r.created_at).toLocaleDateString('en-GB')}</div>
+          <div class="report-title">${esc(r.title)}</div>
+          <div class="report-meta">${esc(r.category_name) || ''} &bull; ${new Date(r.created_at).toLocaleDateString('en-GB')}</div>
         </div>
         <div class="report-upvotes">
           <span class="upvote-count">${r.upvote_count || 0}</span>

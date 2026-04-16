@@ -3,9 +3,11 @@
 <head>
 	<meta charset="UTF-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="description" content="CivicPulse Admin Panel — Analytics, user management, and system oversight."/>
 	<title>CivicPulse — Admin Panel</title>
 	<link rel="stylesheet" href="../css/style.css"/>
 	<link rel="stylesheet" href="../css/dashboard.css"/>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -22,6 +24,12 @@
 			<div class="sidebar-section">Admin</div>
 			<div class="nav-item active" onclick="showPage('analytics-page', this)">
 				<span class="icon">📊</span> Analytics
+			</div>
+			<div class="nav-item" onclick="showPage('performance-page', this)">
+				<span class="icon">🏛</span> Authority Performance
+			</div>
+			<div class="nav-item" onclick="showPage('weekly-page', this)">
+				<span class="icon">📅</span> Weekly Report
 			</div>
 			<div class="nav-item" onclick="showPage('manage-users-page', this)">
 				<span class="icon">👤</span> Manage Users
@@ -43,28 +51,48 @@
 			<!-- Analytics -->
 			<div class="page active" id="analytics-page">
 				<div class="page-header">
-					<h2>Analytics</h2>
-					<p>Overview of reports, users, and system activity.</p>
+					<h2>Analytics Dashboard</h2>
+					<p>Platform-wide statistics and data visualisation.</p>
+				</div>
+				<div id="analytics-content"><p class="text-muted text-sm">Loading...</p></div>
+			</div>
+
+			<!-- Authority Performance -->
+			<div class="page" id="performance-page">
+				<div class="page-header">
+					<h2>Authority Performance</h2>
+					<p>Resolution rates and response metrics per government authority.</p>
 				</div>
 				<div class="card">
-					<div id="analytics-content"><p class="text-muted text-sm">Loading...</p></div>
+					<div id="performance-content"><p class="text-muted text-sm">Loading...</p></div>
 				</div>
 			</div>
+
+			<!-- Weekly Report -->
+			<div class="page" id="weekly-page">
+				<div class="page-header">
+					<h2>Weekly Accountability Report</h2>
+					<p>Summary of this week's activity — new reports, resolved issues, and overdue items.</p>
+				</div>
+				<div id="weekly-content"><p class="text-muted text-sm">Loading...</p></div>
+			</div>
+
 			<!-- Manage Users -->
 			<div class="page" id="manage-users-page">
 				<div class="page-header">
 					<h2>Manage Users</h2>
-					<p>View, edit, or remove users.</p>
+					<p>View, activate, or deactivate user accounts.</p>
 				</div>
 				<div class="card">
 					<div id="users-list"><p class="text-muted text-sm">Loading...</p></div>
 				</div>
 			</div>
+
 			<!-- Manage Wards -->
 			<div class="page" id="manage-wards-page">
 				<div class="page-header">
 					<h2>Manage Wards</h2>
-					<p>View and edit ward information.</p>
+					<p>View ward information and report distribution.</p>
 				</div>
 				<div class="card">
 					<div id="wards-list"><p class="text-muted text-sm">Loading...</p></div>
@@ -75,20 +103,5 @@
 </div>
 <script src="../js/auth.js"></script>
 <script src="../js/admin.js"></script>
-<script>
-function setTheme(theme) {
-	document.documentElement.setAttribute('data-theme', theme);
-	localStorage.setItem('cp_theme', theme);
-}
-function toggleTheme() {
-	const current = document.documentElement.getAttribute('data-theme') || 'light';
-	setTheme(current === 'dark' ? 'light' : 'dark');
-}
-document.getElementById('theme-toggle').onclick = toggleTheme;
-(function() {
-	const saved = localStorage.getItem('cp_theme');
-	if (saved) setTheme(saved);
-})();
-</script>
 </body>
 </html>

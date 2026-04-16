@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { register, login, getMe, verifyEmail } = require('../controllers/authController');
+const { register, login, getMe, verifyEmail, resendVerification } = require('../controllers/authController');
 const verifyToken = require('../middleware/authMiddleware');
 const { validateRegister, validateLogin } = require('../validators/authValidator');
 
@@ -9,9 +9,9 @@ const { validateRegister, validateLogin } = require('../validators/authValidator
 router.post('/register', validateRegister, register);
 router.post('/login', validateLogin, login);
 
-
-// Email verification route
+// Email verification routes
 router.get('/verify/:token', verifyEmail);
+router.post('/resend-verification', resendVerification);
 
 // Protected route
 router.get('/me', verifyToken, getMe);

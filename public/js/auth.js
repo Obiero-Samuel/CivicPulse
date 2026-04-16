@@ -50,6 +50,24 @@ function esc(str) {
 	return div.innerHTML;
 }
 
+// ── Handle verification URL params on login page ─────────────────────
+(function handleVerifyParams() {
+	const params = new URLSearchParams(window.location.search);
+	const verified = params.get('verified');
+	if (verified === 'success') {
+		const el = document.getElementById('verify-success-msg');
+		if (el) { el.style.display = 'block'; el.classList.add('show'); }
+		// Clean URL
+		history.replaceState({}, '', window.location.pathname);
+	} else if (verified === 'invalid' || verified === 'error') {
+		const el = document.getElementById('verify-invalid-msg');
+		if (el) { el.style.display = 'block'; el.classList.add('show'); }
+		const resendSection = document.getElementById('resend-section');
+		if (resendSection) resendSection.style.display = 'block';
+		history.replaceState({}, '', window.location.pathname);
+	}
+})();
+
 // ── Auto-redirect if already logged in (on login/register pages) ─────
 (function autoRedirect() {
 	const path = window.location.pathname;
@@ -62,6 +80,9 @@ function esc(str) {
 		}
 	}
 })();
+
+// ── Stored email for resend verification ──────────────────────────────
+let pendingVerificationEmail = null;
 
 // ── LOGIN ─────────────────────────────────────────────────────────────
 const loginForm = document.getElementById('login-form');
@@ -86,6 +107,14 @@ if (loginForm) {
 
 			if (!res.ok) {
 				showError('error-msg', data.error || 'Login failed.');
+
+				// Show resend verification section if needed
+				if (data.needsVerification) {
+					pendingVerificationEmail = data.email || email;
+					const resendSection = document.getElementById('resend-section');
+					if (resendSection) resendSection.style.display = 'block';
+				}
+
 				btn.disabled = false;
 				btn.innerHTML = 'Sign in';
 				return;
@@ -100,6 +129,45 @@ if (loginForm) {
 			btn.innerHTML = 'Sign in';
 		}
 	});
+}
+
+// ── Resend verification ───────────────────────────────────────────────
+async function resendVerification() {
+	const email = pendingVerificationEmail || document.getElementById('email')?.value?.trim();
+	if (!email) {
+		showError('error-msg', 'Please enter your email above first.');
+		return;
+	}
+
+	const btn = document.getElementById('resend-btn');
+	const msgEl = document.getElementById('resend-msg');
+	if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+	try {
+		const res = await fetch(`${API_BASE}/auth/resend-verification`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email }),
+		});
+		const data = await res.json();
+
+		if (msgEl) {
+			msgEl.style.display = 'block';
+			msgEl.style.color = res.ok ? 'var(--success, #10B981)' : 'var(--danger, #EF4444)';
+			msgEl.textContent = data.message || data.error || 'Email sent.';
+		}
+	} catch {
+		if (msgEl) {
+			msgEl.style.display = 'block';
+			msgEl.style.color = 'var(--danger, #EF4444)';
+			msgEl.textContent = 'Network error. Is the server running?';
+		}
+	} finally {
+		if (btn) {
+			btn.disabled = false;
+			btn.textContent = 'Resend verification email';
+		}
+	}
 }
 
 // ── REGISTER ──────────────────────────────────────────────────────────
@@ -159,8 +227,8 @@ if (registerForm) {
 				return;
 			}
 
-			// If registration is successful, show verification notice
-			showSuccess('success-msg', 'Account created! Please check your email to verify your account before logging in.');
+			// Show verification notice
+			showSuccess('success-msg', '🎉 Account created! Check your email for a verification link before logging in.');
 			btn.disabled = false;
 			btn.innerHTML = 'Create account';
 

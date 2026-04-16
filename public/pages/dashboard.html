@@ -1,46 +1,3 @@
-</style>
-<style>
-	.modal-overlay {
-		position: fixed;
-		top: 0; left: 0; right: 0; bottom: 0;
-		background: rgba(10,14,26,0.65);
-		z-index: 10000;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: var(--transition-fast);
-	}
-	.modal-card {
-		background: var(--bg-card);
-		border-radius: var(--radius-xl);
-		box-shadow: var(--shadow-lg);
-		padding: 36px 32px 28px 32px;
-		min-width: 340px;
-		max-width: 98vw;
-		max-height: 98vh;
-		overflow-y: auto;
-		position: relative;
-		animation: fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
-	}
-	.modal-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 12px;
-	}
-	.modal-close {
-		background: none;
-		border: none;
-		font-size: 2rem;
-		color: var(--text-muted);
-		cursor: pointer;
-		transition: color 0.2s;
-		margin-left: 16px;
-	}
-	.modal-close:hover {
-		color: var(--danger);
-	}
-</style>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -53,6 +10,47 @@
 	<link rel="stylesheet" href="../css/dashboard.css" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 	<style>
+		/* ── Modal overlay & card ──────────────────────── */
+		.modal-overlay {
+			position: fixed;
+			top: 0; left: 0; right: 0; bottom: 0;
+			background: rgba(10,14,26,0.65);
+			z-index: 10000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: var(--transition-fast);
+		}
+		.modal-card {
+			background: var(--bg-card);
+			border-radius: var(--radius-xl);
+			box-shadow: var(--shadow-lg);
+			padding: 36px 32px 28px 32px;
+			min-width: 340px;
+			max-width: 98vw;
+			max-height: 98vh;
+			overflow-y: auto;
+			position: relative;
+			animation: fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
+		}
+		.modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 12px;
+		}
+		.modal-close {
+			background: none;
+			border: none;
+			font-size: 2rem;
+			color: var(--text-muted);
+			cursor: pointer;
+			transition: color 0.2s;
+			margin-left: 16px;
+		}
+		.modal-close:hover {
+			color: var(--danger);
+		}
 		/* ── Welcome card ───────────────────────────────── */
 		.welcome-card {
 			background: linear-gradient(135deg, #0f0c29 0%, #1a1145 35%, #302b63 65%, #24243e 100%);
@@ -371,7 +369,7 @@
 				<div class="nav-item" onclick="showPage('my-reports-page', this)">
 					<span class="icon">📋</span> My Reports
 				</div>
-				<div class="nav-item" onclick="showPage('submit-page', this)">
+				<div class="nav-item" onclick="openReportModal(); this.classList.add('active')">
 					<span class="icon">➕</span> Submit Issue
 				</div>
 				<div class="nav-item" onclick="showPage('how-it-works-page', this)">
@@ -467,8 +465,8 @@
 								<select id="map-filter-status"
 									style="padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;background:var(--bg-secondary);color:var(--text-primary);">
 									<option value="">All statuses</option>
-									<option value="submitted">Submitted</option>
-									<option value="under_review">Under Review</option>
+									<option value="open">Open</option>
+									<option value="rejected">Rejected</option>
 									<option value="in_progress">In Progress</option>
 									<option value="resolved">Resolved</option>
 									<option value="escalated">Escalated</option>
@@ -480,14 +478,10 @@
 						<div class="map-legend">
 							<div class="map-legend-item">
 								<div class="legend-dot" style="background:#F59E0B;box-shadow:0 0 6px #F59E0B;"></div>
-								Submitted
+								Open
 							</div>
 							<div class="map-legend-item">
 								<div class="legend-dot" style="background:#3B82F6;box-shadow:0 0 6px #3B82F6;"></div>
-								Under Review
-							</div>
-							<div class="map-legend-item">
-								<div class="legend-dot" style="background:#8B5CF6;box-shadow:0 0 6px #8B5CF6;"></div>
 								In Progress
 							</div>
 							<div class="map-legend-item">
@@ -497,6 +491,10 @@
 							<div class="map-legend-item">
 								<div class="legend-dot" style="background:#EF4444;box-shadow:0 0 6px #EF4444;"></div>
 								Escalated
+							</div>
+							<div class="map-legend-item">
+								<div class="legend-dot" style="background:#6B7280;box-shadow:0 0 6px #6B7280;"></div>
+								Rejected
 							</div>
 						</div>
 						<div id="map" style="height:420px;border-radius:var(--radius-sm);"></div>
@@ -686,18 +684,27 @@
 		// ── Welcome card stats ────────────────────────────────────────
 		(async () => {
 			try {
-				const res = await fetch('http://localhost:5000/api/reports/map');
+				const res = await fetch(`${API_BASE}/reports/map`);
 				const data = await res.json();
 				const reports = data.reports || [];
 				document.getElementById('s-total').textContent = reports.length;
-				document.getElementById('wc-open').textContent = reports.filter(r => r.status === 'submitted' || r.status === 'under_review').length;
+				document.getElementById('wc-open').textContent = reports.filter(r => r.status === 'open').length;
 				document.getElementById('wc-resolved').textContent = reports.filter(r => r.status === 'resolved').length;
 				document.getElementById('wc-escalated').textContent = reports.filter(r => r.status === 'escalated').length;
-				document.getElementById('s-open').textContent = reports.filter(r => r.status === 'submitted' || r.status === 'under_review').length;
+				document.getElementById('s-open').textContent = reports.filter(r => r.status === 'open').length;
 				document.getElementById('s-resolved').textContent = reports.filter(r => r.status === 'resolved').length;
 				document.getElementById('s-escalated').textContent = reports.filter(r => r.status === 'escalated').length;
 			} catch (_) { }
 		})();
+
+		// ── Modal open/close for report submission ──────────────────
+		function openReportModal() {
+			loadFormDropdowns();
+			document.getElementById('submit-modal').style.display = 'flex';
+		}
+		function closeReportModal() {
+			document.getElementById('submit-modal').style.display = 'none';
+		}
 	</script>
 </body>
 </html>

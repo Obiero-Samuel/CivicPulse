@@ -4,7 +4,7 @@ const pool = require('../config/db');
 const getUsers = async (req, res) => {
 	try {
 		const result = await pool.query(
-			`SELECT u.id, u.full_name, u.email, u.role, u.is_active, u.created_at,
+			`SELECT u.id, u.full_name, u.email, u.role, u.is_active, u.is_verified, u.created_at,
 							w.name AS ward_name
 			 FROM users u
 			 LEFT JOIN wards w ON u.ward_id = w.id
