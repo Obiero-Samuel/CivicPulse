@@ -151,6 +151,7 @@ if (registerForm) {
 			});
 			const data = await res.json();
 
+
 			if (!res.ok) {
 				showError('error-msg', data.error || 'Registration failed.');
 				btn.disabled = false;
@@ -158,9 +159,10 @@ if (registerForm) {
 				return;
 			}
 
-			saveSession(data.token, data.user);
-			showSuccess('success-msg', 'Account created! Redirecting...');
-			setTimeout(() => redirectByRole(data.user.role), 1200);
+			// If registration is successful, show verification notice
+			showSuccess('success-msg', 'Account created! Please check your email to verify your account before logging in.');
+			btn.disabled = false;
+			btn.innerHTML = 'Create account';
 
 		} catch (err) {
 			showError('error-msg', 'Server unreachable. Is the backend running?');

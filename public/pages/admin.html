@@ -3,35 +3,16 @@
 <head>
 	<meta charset="UTF-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<meta name="description" content="CivicPulse Admin Panel — Analytics, user management, and ward oversight."/>
 	<title>CivicPulse — Admin Panel</title>
 	<link rel="stylesheet" href="../css/style.css"/>
 	<link rel="stylesheet" href="../css/dashboard.css"/>
-	<style>
-		/* Admin-specific page header glow */
-		.admin-badge {
-			display: inline-flex;
-			align-items: center;
-			gap: 6px;
-			padding: 4px 12px;
-			background: rgba(168, 85, 247, 0.10);
-			border: 1px solid rgba(168, 85, 247, 0.20);
-			border-radius: var(--radius-full);
-			font-size: 10px;
-			font-weight: 700;
-			color: var(--neon-purple);
-			text-transform: uppercase;
-			letter-spacing: 0.08em;
-			margin-bottom: 8px;
-		}
-	</style>
 </head>
 <body>
 <div class="layout">
 	<nav class="topnav">
 		<span class="topnav-brand">Civic<span>Pulse</span></span>
 		<div class="topnav-right">
-			<button class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+			<button class="btn btn-ghost btn-sm" id="theme-toggle" title="Toggle dark/light mode">🌓</button>
 			<span class="topnav-user" id="nav-user"></span>
 			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
 		</div>
@@ -62,7 +43,6 @@
 			<!-- Analytics -->
 			<div class="page active" id="analytics-page">
 				<div class="page-header">
-					<div class="admin-badge">🔒 Admin Access</div>
 					<h2>Analytics</h2>
 					<p>Overview of reports, users, and system activity.</p>
 				</div>
@@ -73,9 +53,8 @@
 			<!-- Manage Users -->
 			<div class="page" id="manage-users-page">
 				<div class="page-header">
-					<div class="admin-badge">🔒 Admin Access</div>
 					<h2>Manage Users</h2>
-					<p>View, edit, or toggle user accounts.</p>
+					<p>View, edit, or remove users.</p>
 				</div>
 				<div class="card">
 					<div id="users-list"><p class="text-muted text-sm">Loading...</p></div>
@@ -84,9 +63,8 @@
 			<!-- Manage Wards -->
 			<div class="page" id="manage-wards-page">
 				<div class="page-header">
-					<div class="admin-badge">🔒 Admin Access</div>
 					<h2>Manage Wards</h2>
-					<p>View ward information and report counts.</p>
+					<p>View and edit ward information.</p>
 				</div>
 				<div class="card">
 					<div id="wards-list"><p class="text-muted text-sm">Loading...</p></div>
@@ -97,5 +75,20 @@
 </div>
 <script src="../js/auth.js"></script>
 <script src="../js/admin.js"></script>
+<script>
+function setTheme(theme) {
+	document.documentElement.setAttribute('data-theme', theme);
+	localStorage.setItem('cp_theme', theme);
+}
+function toggleTheme() {
+	const current = document.documentElement.getAttribute('data-theme') || 'light';
+	setTheme(current === 'dark' ? 'light' : 'dark');
+}
+document.getElementById('theme-toggle').onclick = toggleTheme;
+(function() {
+	const saved = localStorage.getItem('cp_theme');
+	if (saved) setTheme(saved);
+})();
+</script>
 </body>
 </html>
