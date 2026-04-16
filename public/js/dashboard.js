@@ -1,3 +1,4 @@
+
 // Modal logic for submit report
 function openReportModal() {
 	const modal = document.getElementById('submit-modal');
@@ -17,6 +18,7 @@ document.addEventListener('click', function(e) {
 		closeReportModal();
 	}
 });
+>>>>>>> 55b639ed3c8692fbad2221d1df05c4e84487516f
 
 
 // Socket.IO client setup for real-time updates
