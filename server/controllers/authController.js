@@ -1,6 +1,10 @@
+
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const pool    = require('../config/db');
+const crypto  = require('crypto');
+const nodemailer = require('nodemailer');
+const userModel = require('../models/userModel');
 
 // ─── Helper: generate JWT ─────────────────────────────────────
 const generateToken = (user) => {
@@ -33,11 +37,8 @@ const register = async (req, res) => {
 
 	try {
 		// ─── Check duplicate email ────────────────────────────
-		const existing = await pool.query(
-			'SELECT id FROM users WHERE email = $1', [email.toLowerCase()]
-		);
-
-		if (existing.rows.length > 0) {
+		const existing = await userModel.findUserByEmail(email.toLowerCase());
+		if (existing) {
 			return res.status(409).json({ error: 'An account with that email already exists.' });
 		}
 
@@ -45,33 +46,60 @@ const register = async (req, res) => {
 		const salt          = await bcrypt.genSalt(10);
 		const password_hash = await bcrypt.hash(password, salt);
 
-		// ─── Insert user ──────────────────────────────────────
-		const result = await pool.query(
-			`INSERT INTO users (full_name, email, password_hash, role, ward_id)
-			 VALUES ($1, $2, $3, 'resident', $4)
-			 RETURNING id, full_name, email, role, ward_id, created_at`,
-			[full_name.trim(), email.toLowerCase(), password_hash, ward_id || null]
-		);
+		// ─── Generate verification token ─────────────────────
+		const verification_token = crypto.randomBytes(32).toString('hex');
 
-		const user  = result.rows[0];
-		const token = generateToken(user);
+		// ─── Insert user with verification ───────────────────
+		const user = await userModel.createUserWithVerification({
+			full_name: full_name.trim(),
+			email: email.toLowerCase(),
+			password_hash,
+			ward_id,
+			verification_token
+		});
+
+		// ─── Send verification email ────────────────────────
+		const transporter = nodemailer.createTransport({
+			service: 'gmail', // or your SMTP provider
+			auth: {
+				user: process.env.EMAIL_USER,
+				pass: process.env.EMAIL_PASS
+			}
+		});
+
+		const verifyUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/verify/${verification_token}`;
+		await transporter.sendMail({
+			from: process.env.EMAIL_USER,
+			to: user.email,
+			subject: 'Verify your CivicPulse account',
+			html: `<p>Hi ${user.full_name},</p>
+				   <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+				   <a href="${verifyUrl}">${verifyUrl}</a>`
+		});
 
 		return res.status(201).json({
-			message: 'Account created successfully.',
-			token,
-			user: {
-				id:        user.id,
-				full_name: user.full_name,
-				email:     user.email,
-				role:      user.role,
-				ward_id:   user.ward_id,
-			},
+			message: 'Account created. Please check your email to verify your account.',
 		});
 
 	} catch (err) {
 		console.error('Register error:', err.message);
 		return res.status(500).json({ error: 'Registration failed. Please try again.' });
 	}
+// ════════════════════════════════════════════════════════════
+//  GET /api/auth/verify/:token
+// ════════════════════════════════════════════════════════════
+const verifyEmail = async (req, res) => {
+	const { token } = req.params;
+	try {
+		const user = await userModel.verifyUserByToken(token);
+		if (!user) {
+			return res.status(400).send('Invalid or expired verification link.');
+		}
+		return res.send('Email verified successfully! You can now log in.');
+	} catch (err) {
+		return res.status(500).send('Verification failed.');
+	}
+};
 };
 
 // ════════════════════════════════════════════════════════════
@@ -155,4 +183,4 @@ const getMe = async (req, res) => {
 	}
 };
 
-module.exports = { register, login, getMe };
+module.exports = { register, login, getMe, verifyEmail };

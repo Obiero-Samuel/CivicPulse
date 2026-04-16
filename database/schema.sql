@@ -28,15 +28,17 @@ CREATE TYPE report_status  AS ENUM ('open', 'in_progress', 'resolved', 'escalate
 --  TABLE 1 — users
 -- ════════════════════════════════════════════════════════════
 CREATE TABLE users (
-	id            SERIAL PRIMARY KEY,
-	full_name     VARCHAR(120)        NOT NULL,
-	email         VARCHAR(255) UNIQUE NOT NULL,
-	password_hash TEXT                NOT NULL,
-	role          user_role           NOT NULL DEFAULT 'resident',
-	ward_id       INT,                          -- residents belong to a ward
-	is_active     BOOLEAN             NOT NULL DEFAULT TRUE,
-	created_at    TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-	updated_at    TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+	id                  SERIAL PRIMARY KEY,
+	full_name           VARCHAR(120)        NOT NULL,
+	email               VARCHAR(255) UNIQUE NOT NULL,
+	password_hash       TEXT                NOT NULL,
+	role                user_role           NOT NULL DEFAULT 'resident',
+	ward_id             INT,                          -- residents belong to a ward
+	is_active           BOOLEAN             NOT NULL DEFAULT TRUE,
+	is_verified         BOOLEAN             NOT NULL DEFAULT FALSE,
+	verification_token  VARCHAR(255),
+	created_at          TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
+	updated_at          TIMESTAMPTZ         NOT NULL DEFAULT NOW()
 );
 
 

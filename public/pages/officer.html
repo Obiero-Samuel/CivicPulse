@@ -3,34 +3,16 @@
 <head>
 	<meta charset="UTF-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<meta name="description" content="CivicPulse Officer Portal — Manage and resolve civic reports assigned to your authority."/>
 	<title>CivicPulse — Officer Portal</title>
 	<link rel="stylesheet" href="../css/style.css"/>
 	<link rel="stylesheet" href="../css/dashboard.css"/>
-	<style>
-		.officer-badge {
-			display: inline-flex;
-			align-items: center;
-			gap: 6px;
-			padding: 4px 12px;
-			background: rgba(0, 229, 255, 0.08);
-			border: 1px solid rgba(0, 229, 255, 0.20);
-			border-radius: var(--radius-full);
-			font-size: 10px;
-			font-weight: 700;
-			color: var(--neon-cyan);
-			text-transform: uppercase;
-			letter-spacing: 0.08em;
-			margin-bottom: 8px;
-		}
-	</style>
 </head>
 <body>
 <div class="layout">
 	<nav class="topnav">
 		<span class="topnav-brand">Civic<span>Pulse</span></span>
 		<div class="topnav-right">
-			<button class="theme-toggle" id="theme-toggle" title="Toggle theme">🌙</button>
+			<button class="btn btn-ghost btn-sm" id="theme-toggle" title="Toggle dark/light mode">🌓</button>
 			<span class="topnav-user" id="nav-user"></span>
 			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
 		</div>
@@ -58,9 +40,8 @@
 			<!-- Assigned Reports -->
 			<div class="page active" id="assigned-page">
 				<div class="page-header">
-					<div class="officer-badge">⚡ Officer Portal</div>
 					<h2>Assigned Reports</h2>
-					<p>Manage and resolve issues assigned to your authority.</p>
+					<p>Manage and resolve issues assigned to you.</p>
 				</div>
 				<div class="card">
 					<div id="assigned-list"><p class="text-muted text-sm">Loading...</p></div>
@@ -69,9 +50,8 @@
 			<!-- All Reports -->
 			<div class="page" id="all-page">
 				<div class="page-header">
-					<div class="officer-badge">⚡ Officer Portal</div>
 					<h2>All Reports</h2>
-					<p>View all reports across the platform.</p>
+					<p>View all reports in your jurisdiction.</p>
 				</div>
 				<div class="card">
 					<div id="all-list"><p class="text-muted text-sm">Loading...</p></div>
@@ -82,5 +62,20 @@
 </div>
 <script src="../js/auth.js"></script>
 <script src="../js/officer.js"></script>
+<script>
+function setTheme(theme) {
+	document.documentElement.setAttribute('data-theme', theme);
+	localStorage.setItem('cp_theme', theme);
+}
+function toggleTheme() {
+	const current = document.documentElement.getAttribute('data-theme') || 'light';
+	setTheme(current === 'dark' ? 'light' : 'dark');
+}
+document.getElementById('theme-toggle').onclick = toggleTheme;
+(function() {
+	const saved = localStorage.getItem('cp_theme');
+	if (saved) setTheme(saved);
+})();
+</script>
 </body>
 </html>

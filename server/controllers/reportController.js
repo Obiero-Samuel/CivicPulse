@@ -39,11 +39,18 @@ exports.createReport = async (req, res) => {
 			);
 		}
 
+
 		// Log the opening entry in status history
 		await reportModel.addStatusHistory(
 			report.id, req.user.id, null, 'open',
 			`Report submitted. Routed to: ${category.name}.`
 		);
+
+		// Emit real-time event to all connected clients
+		const io = req.app.get('io');
+		if (io) {
+			io.emit('newReport', { ...report, authority_id });
+		}
 
 		return res.status(201).json({
 			message: `Report submitted. Tracking: ${report.tracking_number}`,
