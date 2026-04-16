@@ -397,3 +397,61 @@ The binding vow remains: every improvement, every fix, every flourish must be ap
 
 **Note:**
 - If further mistakes need to be undone, repeat with the relevant commit hash.
+
+---
+
+## 16 April 2026 — Reverse Cursed Technique: Purging the Merge Parasite
+
+There is a curse that plagues collaborative repositories — silent, insidious, and self-replicating. Every time two sorcerers push and pull from the same domain, the curse spawns a new entity:
+
+```
+Merge branch 'main' of https://github.com/Obiero-Samuel/CivicPulse
+```
+
+Not once. Not twice. **Three times** in a span of hours. Empty merge commits — carrying no meaningful change, yet polluting the commit timeline like residuals left behind by a domain that collapsed too early.
+
+The git log told the full story:
+
+| Commit | Type | Author |
+|---|---|---|
+| `f37955e` | Merge branch 'main' | Samuel |
+| `f2db450` | Merge branch 'main' | Mwangi |
+| `5690f32` | Merge branch 'main' | Mwangi |
+
+Three parasitic commits. Zero value. The history, which should read as a clean chronicle of every technique refined and every bug slain, was instead cluttered with the Git equivalent of cursed speech spoken without intent.
+
+### Root Cause — The Default Pull Strategy
+
+**Diagnosis:**
+- `git config --get pull.rebase` returned `false`.
+- When `pull.rebase` is false, every `git pull` that encounters diverged branches creates a **merge commit** — even when a simple replay of commits on top of the remote would suffice.
+- With two collaborators (Samuel and Mwangi) pushing independently, every pull created a new merge commit. The problem compounds exponentially with frequency.
+
+**The cursed mechanism:**
+1. Samuel pushes commit A.
+2. Mwangi pushes commit B (without pulling first).
+3. Mwangi runs `git pull` → Git creates a merge commit M1 fusing A and B.
+4. Mwangi pushes M1.
+5. Samuel pulls → Git creates merge commit M2 fusing his local state with M1.
+6. The cycle repeats infinitely. Each iteration spawns a new parasite.
+
+### Resolution — Binding Vow: Rebase on Pull
+
+**Fix applied:**
+```bash
+git config pull.rebase true          # local — this repository
+git config --global pull.rebase true # global — all future repositories
+```
+
+**What this changes:**
+- Future `git pull` operations will **rebase** local commits on top of the remote branch instead of creating merge commits.
+- The commit history remains linear, clean, and readable.
+- No information is lost — every commit is preserved, only replayed in order.
+
+**Existing merge commits** (`f37955e`, `f2db450`, `5690f32`) remain in the history. Removing them would require a force-push that could disrupt Mwangi's local branch. The binding vow of this DEVLOG forbids rewriting what has already been written — and Git history is no different. The parasites are sealed. No new ones will spawn.
+
+**Additional cleanup:**
+- Discarded a phantom modification in `authController.js` — a single trailing newline, zero functional impact. `git checkout -- server/controllers/authController.js` erased it.
+
+**Standing instruction established:** Mwangi must also run `git config pull.rebase true` on his machine. Until he does, merge commits may still originate from his side. The technique only works when both sorcerers are bound by the same vow.
+
