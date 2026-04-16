@@ -1,7 +1,6 @@
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const pool    = require('../config/db');
-require('dotenv').config();
 
 // ─── Helper: generate JWT ─────────────────────────────────────
 const generateToken = (user) => {

@@ -1,176 +1,509 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
+
 <head>
-	<meta charset="UTF-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<title>CivicPulse — Dashboard</title>
-	<link rel="stylesheet" href="../css/style.css"/>
-	<link rel="stylesheet" href="../css/dashboard.css"/>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>CivicPulse — Resident Dashboard</title>
+	<link rel="stylesheet" href="../css/style.css" />
+	<link rel="stylesheet" href="../css/dashboard.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<style>
+		/* ── Welcome card ───────────────────────────────── */
+		.welcome-card {
+			background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0891b2 100%);
+			border-radius: var(--radius-md);
+			padding: 24px 28px;
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 24px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.welcome-card::after {
+			content: '';
+			position: absolute;
+			right: -40px;
+			top: -40px;
+			width: 160px;
+			height: 160px;
+			background: rgba(255, 255, 255, 0.06);
+			border-radius: 50%;
+		}
+
+		.welcome-card h3 {
+			color: white;
+			font-size: 1.2rem;
+			margin-bottom: 4px;
+		}
+
+		.welcome-card p {
+			color: rgba(255, 255, 255, 0.8);
+			font-size: 0.875rem;
+			margin: 0;
+		}
+
+		.welcome-card .welcome-graphic {
+			width: 80px;
+			opacity: 0.9;
+			position: relative;
+			z-index: 1;
+		}
+
+		/* ── Onboarding tip ─────────────────────────────── */
+		.tip-card {
+			background: #fffbeb;
+			border: 1.5px solid #fde68a;
+			border-radius: var(--radius-md);
+			padding: 14px 18px;
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			margin-bottom: 24px;
+			font-size: 0.875rem;
+		}
+
+		[data-theme="dark"] .tip-card {
+			background: #1c1a08;
+			border-color: #854d0e;
+		}
+
+		.tip-card .tip-icon {
+			font-size: 1.3rem;
+			flex-shrink: 0;
+			margin-top: 1px;
+		}
+
+		.tip-card .tip-text {
+			flex: 1;
+			color: var(--text-secondary);
+			line-height: 1.5;
+		}
+
+		.tip-card .tip-text strong {
+			color: var(--text-primary);
+		}
+
+		.tip-dismiss {
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: var(--text-muted);
+			font-size: 1.1rem;
+			padding: 0;
+			line-height: 1;
+		}
+
+		.tip-dismiss:hover {
+			color: var(--danger);
+		}
+
+		/* ── Empty state ────────────────────────────────── */
+		.empty-state-box {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 48px 20px;
+			text-align: center;
+		}
+
+		.empty-state-box img {
+			width: 120px;
+			margin-bottom: 16px;
+			opacity: 0.7;
+		}
+
+		.empty-state-box h4 {
+			font-size: 1rem;
+			color: var(--text-primary);
+			margin-bottom: 6px;
+		}
+
+		.empty-state-box p {
+			font-size: 0.875rem;
+			color: var(--text-muted);
+			max-width: 280px;
+		}
+
+		/* ── Quick action buttons ───────────────────────── */
+		.quick-actions {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 12px;
+			margin-bottom: 24px;
+		}
+
+		.quick-action-btn {
+			background: var(--bg-card);
+			border: 1.5px solid var(--border);
+			border-radius: var(--radius-md);
+			padding: 16px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+			transition: var(--transition);
+			text-align: center;
+		}
+
+		.quick-action-btn:hover {
+			border-color: var(--accent);
+			background: var(--accent-light);
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-md);
+		}
+
+		.quick-action-btn .qa-icon {
+			font-size: 1.6rem;
+		}
+
+		.quick-action-btn .qa-label {
+			font-size: 0.8rem;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+	</style>
 </head>
+
 <body>
-<div class="layout">
+	<div class="layout">
 
-	<!-- Top nav -->
+		<nav class="topnav">
+			<span class="topnav-brand">Civic<span>Pulse</span></span>
+			<div class="topnav-right">
+				<button class="theme-toggle" id="themeToggle">🌙</button>
+				<span class="topnav-user" id="nav-user"></span>
+				<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+			</div>
+		</nav>
 
-	<nav class="topnav">
-		<span class="topnav-brand">Civic<span>Pulse</span></span>
-		<div class="topnav-right">
-			<button class="btn btn-ghost btn-sm" id="theme-toggle" title="Toggle dark/light mode">🌓</button>
-			<span class="topnav-user" id="nav-user"></span>
-			<button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+		<div class="main">
+			<aside class="sidebar">
+				<div class="sidebar-section">Navigation</div>
+				<div class="nav-item active" onclick="showPage('map-page', this)">
+					<span class="icon">🗺</span> Ward Map
+				</div>
+				<div class="nav-item" onclick="showPage('my-reports-page', this)">
+					<span class="icon">📋</span> My Reports
+				</div>
+				<div class="nav-item" onclick="showPage('submit-page', this)">
+					<span class="icon">➕</span> Submit Issue
+				</div>
+				<div class="nav-item" onclick="showPage('how-it-works-page', this)">
+					<span class="icon">❓</span> How It Works
+				</div>
+				<div class="sidebar-bottom">
+					<div class="user-pill">
+						<div class="user-avatar" id="avatar-initials">?</div>
+						<div class="user-info">
+							<div class="name" id="sidebar-name">Loading...</div>
+							<div class="role">Resident</div>
+						</div>
+					</div>
+				</div>
+			</aside>
+
+			<main class="content">
+
+				<!-- ══ MAP PAGE ═══════════════════════════════════════ -->
+				<div class="page active" id="map-page">
+
+					<!-- Welcome card -->
+					<div class="welcome-card" id="welcome-card">
+						<div>
+							<h3>Welcome back, <span id="welcome-name">Resident</span> 👋</h3>
+							<p>Your ward map is live. Report an issue or track existing ones below.</p>
+							<div style="display:flex;gap:16px;margin-top:12px;">
+								<div><span style="font-size:1.3rem;font-weight:700;" id="wc-open">—</span><br /><span
+										style="font-size:0.75rem;opacity:0.75;">Open Issues</span></div>
+								<div><span style="font-size:1.3rem;font-weight:700;"
+										id="wc-resolved">—</span><br /><span
+										style="font-size:0.75rem;opacity:0.75;">Resolved</span></div>
+								<div><span style="font-size:1.3rem;font-weight:700;"
+										id="wc-escalated">—</span><br /><span
+										style="font-size:0.75rem;opacity:0.75;">Escalated</span></div>
+							</div>
+						</div>
+						<img src="../assets/welcome-graphic.svg" class="welcome-graphic" alt="" />
+					</div>
+
+					<!-- Onboarding tip -->
+					<div class="tip-card" id="onboarding-tip">
+						<span class="tip-icon">💡</span>
+						<div class="tip-text">
+							<strong>Quick tip:</strong> Click any coloured pin on the map to view report details and
+							upvote issues affecting your area. Use <em>Submit Issue</em> in the sidebar to file a new
+							report — it gets routed automatically.
+						</div>
+						<button class="tip-dismiss" onclick="dismissTip()" title="Dismiss">×</button>
+					</div>
+
+					<!-- Stats row -->
+					<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+						<div class="stat-card">
+							<div class="stat-icon blue">📋</div>
+							<div class="stat-info">
+								<div class="stat-number" id="s-total">—</div>
+								<div class="stat-label">Total Reports</div>
+							</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-icon orange">🔓</div>
+							<div class="stat-info">
+								<div class="stat-number" id="s-open">—</div>
+								<div class="stat-label">Open</div>
+							</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-icon green">✅</div>
+							<div class="stat-info">
+								<div class="stat-number" id="s-resolved">—</div>
+								<div class="stat-label">Resolved</div>
+							</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-icon red">🚨</div>
+							<div class="stat-info">
+								<div class="stat-number" id="s-escalated">—</div>
+								<div class="stat-label">Escalated</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Map -->
+					<div class="card mb-16">
+						<div class="flex-between mb-16">
+							<h3 style="font-size:1rem;margin:0;">📍 Live Issue Map — Nairobi</h3>
+							<div style="display:flex;gap:8px;align-items:center;">
+								<select id="map-filter-status"
+									style="padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;background:var(--bg-secondary);color:var(--text-primary);">
+									<option value="">All statuses</option>
+									<option value="submitted">Submitted</option>
+									<option value="under_review">Under Review</option>
+									<option value="in_progress">In Progress</option>
+									<option value="resolved">Resolved</option>
+									<option value="escalated">Escalated</option>
+								</select>
+								<button class="btn btn-primary btn-sm" onclick="loadMap()">Filter</button>
+							</div>
+						</div>
+						<!-- Map legend -->
+						<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:0.78rem;">
+							<span><span
+									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F59E0B;margin-right:4px;"></span>Submitted</span>
+							<span><span
+									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3B82F6;margin-right:4px;"></span>Under
+								Review</span>
+							<span><span
+									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#8B5CF6;margin-right:4px;"></span>In
+								Progress</span>
+							<span><span
+									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10B981;margin-right:4px;"></span>Resolved</span>
+							<span><span
+									style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#EF4444;margin-right:4px;"></span>Escalated</span>
+						</div>
+						<div id="map" style="height:420px;border-radius:var(--radius-sm);"></div>
+					</div>
+
+					<!-- Recent list -->
+					<div class="card">
+						<div class="card-header">
+							<h3 style="font-size:1rem;margin:0;">Recent Reports</h3>
+							<button class="btn btn-primary btn-sm" onclick="showPage('submit-page', null)">+ Report
+								Issue</button>
+						</div>
+						<div id="recent-list">
+							<div class="loader">
+								<div class="spinner" style="border-color:var(--border);border-top-color:var(--accent);">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- ══ MY REPORTS ════════════════════════════════════ -->
+				<div class="page" id="my-reports-page">
+					<div class="page-header flex-between">
+						<div>
+							<h2>My Reports</h2>
+							<p>Track the status of issues you have submitted.</p>
+						</div>
+						<button class="btn btn-primary btn-sm" onclick="showPage('submit-page',null)">+ New
+							Report</button>
+					</div>
+					<div class="card">
+						<div id="my-reports-list">
+							<div class="loader">
+								<div class="spinner" style="border-color:var(--border);border-top-color:var(--accent);">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- ══ SUBMIT PAGE ════════════════════════════════════ -->
+				<div class="page" id="submit-page">
+					<div class="page-header">
+						<h2>Report a Civic Issue</h2>
+						<p>Describe the problem clearly. It will be routed to the right authority automatically.</p>
+					</div>
+
+					<div class="tip-card" style="margin-bottom:20px;">
+						<span class="tip-icon">📌</span>
+						<div class="tip-text">
+							<strong>Before submitting:</strong> Check the map to see if this issue has already been
+							reported — if it has, upvote it instead. Duplicate reports slow down resolution.
+						</div>
+					</div>
+
+					<div class="card" style="max-width:600px;">
+						<div class="alert alert-error" id="submit-error" style="display:none;"></div>
+						<div class="alert alert-success" id="submit-success" style="display:none;"></div>
+						<form id="submit-form">
+							<div class="form-group">
+								<label>Issue title</label>
+								<input type="text" id="s-title" placeholder="e.g. Flooded road on Ole Sangale Road"
+									required />
+							</div>
+							<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+								<div class="form-group">
+									<label>Category</label>
+									<select id="s-category" required>
+										<option value="">— Select category —</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label>Ward</label>
+									<select id="s-ward" required>
+										<option value="">— Select ward —</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Street address or landmark</label>
+								<input type="text" id="s-address" placeholder="e.g. Near Nyayo Stadium Gate B" />
+							</div>
+							<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+								<div class="form-group">
+									<label>Latitude <span
+											style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+									<input type="number" id="s-lat" step="any" placeholder="-1.3028" />
+								</div>
+								<div class="form-group">
+									<label>Longitude <span
+											style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+									<input type="number" id="s-lng" step="any" placeholder="36.8147" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Description</label>
+								<textarea id="s-desc"
+									placeholder="Describe the issue — severity, who it affects, how long it has been present, and any safety concerns."
+									required></textarea>
+							</div>
+							<button class="btn btn-primary btn-block" type="submit" id="submit-btn"
+								style="margin-top:4px;">
+								Submit Report
+							</button>
+						</form>
+					</div>
+				</div>
+
+				<!-- ══ HOW IT WORKS ═══════════════════════════════════ -->
+				<div class="page" id="how-it-works-page">
+					<div class="page-header">
+						<h2>How CivicPulse Works</h2>
+						<p>A quick guide to getting results for your community.</p>
+					</div>
+					<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px;">
+						<div class="card" style="border-left:4px solid var(--accent);">
+							<div style="font-size:2rem;margin-bottom:12px;">1️⃣</div>
+							<h3 style="font-size:1rem;margin-bottom:8px;">Submit a Report</h3>
+							<p style="font-size:0.875rem;">Describe the issue, pick a category and ward, drop a map pin.
+								Your report gets a unique tracking number instantly.</p>
+						</div>
+						<div class="card" style="border-left:4px solid #8B5CF6;">
+							<div style="font-size:2rem;margin-bottom:12px;">2️⃣</div>
+							<h3 style="font-size:1rem;margin-bottom:8px;">Auto-Routing</h3>
+							<p style="font-size:0.875rem;">CivicPulse automatically assigns your report to the correct
+								authority — KURA for roads, Nairobi Water for pipes, KPLC for lighting, etc.</p>
+						</div>
+						<div class="card" style="border-left:4px solid #10B981;">
+							<div style="font-size:2rem;margin-bottom:12px;">3️⃣</div>
+							<h3 style="font-size:1rem;margin-bottom:8px;">Track Progress</h3>
+							<p style="font-size:0.875rem;">Check <em>My Reports</em> to see status updates. Authority
+								officers post notes as they work on your issue.</p>
+						</div>
+						<div class="card" style="border-left:4px solid #F59E0B;">
+							<div style="font-size:2rem;margin-bottom:12px;">4️⃣</div>
+							<h3 style="font-size:1rem;margin-bottom:8px;">Upvote & Escalate</h3>
+							<p style="font-size:0.875rem;">Upvote reports that affect you too. Reports with many upvotes
+								get escalated automatically, putting pressure on the responsible authority.</p>
+						</div>
+					</div>
+
+					<div class="card mt-16"
+						style="max-width:800px;background:var(--accent-light);border-color:var(--accent);">
+						<h3 style="font-size:1rem;margin-bottom:12px;">🗺 Authorities & What They Handle</h3>
+						<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.875rem;">
+							<div>🚰 <strong>Nairobi Water</strong> — Pipes, sewers, drainage, water supply</div>
+							<div>🛣 <strong>KURA</strong> — Roads, potholes, pavements, signage</div>
+							<div>💡 <strong>KPLC</strong> — Street lights, power outages, wiring</div>
+							<div>🗑 <strong>Public Health</strong> — Garbage, sanitation, stagnant water</div>
+							<div>🌳 <strong>Environment</strong> — Deforestation, pollution, dumping</div>
+							<div>🏗 <strong>NCA</strong> — Illegal construction, unsafe structures</div>
+							<div>🏛 <strong>NMS</strong> — Public facilities, parks, bus stops</div>
+						</div>
+					</div>
+				</div>
+
+			</main>
 		</div>
-	</nav>
-
-	<div class="main">
-		<!-- Sidebar -->
-		<aside class="sidebar">
-			<div class="sidebar-section">Main</div>
-			<div class="nav-item active" onclick="showPage('map-page', this)">
-				<span class="icon">🗺</span> Ward Map
-			</div>
-			<div class="nav-item" onclick="showPage('my-reports-page', this)">
-				<span class="icon">📋</span> My Reports
-			</div>
-			<div class="nav-item" onclick="showPage('submit-page', this)">
-				<span class="icon">➕</span> Submit Issue
-			</div>
-			<div class="sidebar-bottom">
-				<div class="user-pill">
-					<div class="user-avatar" id="avatar-initials">?</div>
-					<div class="user-info">
-						<div class="name" id="sidebar-name">Loading...</div>
-						<div class="role">Resident</div>
-					</div>
-				</div>
-			</div>
-		</aside>
-
-		<!-- Content -->
-		<main class="content">
-
-			<!-- MAP PAGE -->
-			<div class="page active" id="map-page">
-				<div class="page-header">
-					<h2>Ward Map</h2>
-					<p>All reported issues in your community — click any pin to view details.</p>
-				</div>
-				<div class="card mb-2">
-					<div class="flex gap-2 items-center mb-2">
-						<select id="map-filter-status" class="form-group" style="margin:0;flex:1">
-							<option value="">All statuses</option>
-							<option value="open">Open</option>
-							<option value="in_progress">In progress</option>
-							<option value="resolved">Resolved</option>
-							<option value="escalated">Escalated</option>
-						</select>
-						<button class="btn btn-primary btn-sm" onclick="loadMap()">Filter</button>
-						<button class="btn btn-accent btn-sm" onclick="showPage('submit-page', null)">+ Report Issue</button>
-					</div>
-					<div class="map-wrap">
-						<div id="map"></div>
-					</div>
-				</div>
-				<!-- Recent reports list -->
-				<div class="card">
-					<h3 style="font-size:16px;margin-bottom:12px;color:var(--navy)">Recent reports</h3>
-					<div id="recent-list"><p class="text-muted text-sm">Loading...</p></div>
-				</div>
-			</div>
-
-			<!-- MY REPORTS PAGE -->
-			<div class="page" id="my-reports-page">
-				<div class="page-header">
-					<h2>My Reports</h2>
-					<p>Track the status of issues you have submitted.</p>
-				</div>
-				<div class="card">
-					<div id="my-reports-list"><p class="text-muted text-sm">Loading...</p></div>
-				</div>
-			</div>
-
-			<!-- SUBMIT PAGE -->
-			<div class="page" id="submit-page">
-				<div class="page-header">
-					<h2>Report an Issue</h2>
-					<p>Describe the problem clearly. Your report will be routed to the right authority automatically.</p>
-				</div>
-				<div class="card" style="max-width:580px">
-					<div class="alert alert-error"    id="submit-error"></div>
-					<div class="alert alert-success"  id="submit-success"></div>
-					<form id="submit-form">
-						<div class="form-group">
-							<label>Issue title</label>
-							<input type="text" id="s-title" placeholder="e.g. Flooded road on Ole Sangale" required/>
-						</div>
-						<div class="form-group">
-							<label>Category</label>
-							<select id="s-category" required>
-								<option value="">— Select a category —</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>Ward</label>
-							<select id="s-ward" required>
-								<option value="">— Select ward —</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>Street address or landmark</label>
-							<input type="text" id="s-address" placeholder="e.g. Near Nyayo Stadium gate"/>
-						</div>
-						<div class="grid-2">
-							<div class="form-group">
-								<label>Latitude (optional)</label>
-								<input type="number" id="s-lat" step="any" placeholder="-1.3028"/>
-							</div>
-							<div class="form-group">
-								<label>Longitude (optional)</label>
-								<input type="number" id="s-lng" step="any" placeholder="36.8147"/>
-							</div>
-						</div>
-						<div class="form-group">
-							<label>Description</label>
-							<textarea id="s-desc" placeholder="Describe the issue in detail — severity, who it affects, how long it has been present." required></textarea>
-						</div>
-						<button class="btn btn-primary btn-full" type="submit" id="submit-btn">Submit Report</button>
-					</form>
-				</div>
-			</div>
-
-		</main>
 	</div>
-</div>
 
-<!-- Report detail modal -->
-<div class="modal-overlay" id="report-modal">
-	<div class="modal">
-		<button class="modal-close" onclick="closeModal()">&times;</button>
-		<h3 id="modal-title">Report Details</h3>
-		<div id="modal-body"></div>
+	<!-- Report detail modal -->
+	<div class="modal-overlay" id="report-modal">
+		<div class="modal">
+			<div class="modal-header">
+				<h3 id="modal-title" style="margin:0;">Report Details</h3>
+				<button class="modal-close" onclick="closeModal()">×</button>
+			</div>
+			<div id="modal-body"></div>
+		</div>
 	</div>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/map.js"></script>
-<script src="../js/report.js"></script>
-<script>
-// Dark/Light mode toggle logic
-function setTheme(theme) {
-	document.documentElement.setAttribute('data-theme', theme);
-	localStorage.setItem('cp_theme', theme);
-}
-function toggleTheme() {
-	const current = document.documentElement.getAttribute('data-theme') || 'light';
-	setTheme(current === 'dark' ? 'light' : 'dark');
-}
-document.getElementById('theme-toggle').onclick = toggleTheme;
-// On load, set theme from localStorage
-(function() {
-	const saved = localStorage.getItem('cp_theme');
-	if (saved) setTheme(saved);
-})();
-</script>
-</body>
-</html>
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="../js/auth.js"></script>
+	<script src="../js/map.js"></script>
+	<script src="../js/report.js"></script>
+	<script>
+		// ── Onboarding tip dismiss ────────────────────────────────────
+		function dismissTip() {
+			document.getElementById('onboarding-tip').style.display = 'none';
+			localStorage.setItem('cp_tip_dismissed', '1');
+		}
+		if (localStorage.getItem('cp_tip_dismissed')) {
+			const t = document.getElementById('onboarding-tip');
+			if (t) t.style.display = 'none';
+		}
+
+		// ── Welcome card stats ────────────────────────────────────────
+		(async () => {
+			try {
+				const res = await fetch('http://localhost:5000/api/reports/map');
+				const data = await res.json();
+				const reports = data.reports || [];
+				document.getElementById('s-total').textContent = reports.length;
+				document.getElementById('wc-open').textContent = reports.filter(r => r.status === 'submitted' || r.status === 'under_review').length;
+				document.getElementById('wc-resolved').textContent = reports.filter(r => r.status === 'resolved').length;
+				document.getElementById('wc-escalated').textContent = reports.filter(r => r.status === 'escalated').length;
+				document.getElementById('s-open').textContent = reports.filter(r => r.status === 'submitted' || r.status === 'under_review').length;
+				document.getElementById('s-resolved').textContent = reports.filter(r => r.status === 'resolved').length;
+				document.getElementById('s-escalated').textContent = reports.filter(r => r.status === 'escalated').length;
+			} catch (_) { }
+		})();

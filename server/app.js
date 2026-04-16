@@ -1,45 +1,46 @@
+const express    = require('express');
+const cors       = require('cors');
+const path       = require('path');
+const morgan     = require('morgan');
+const rateLimit  = require('express-rate-limit');
 
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
 const app = express();
 
-// Middleware
-
+// ─── Middleware ────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
+// Rate limiter for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,   // 15 minutes
+  max:      20,
+  message:  { error: 'Too many requests. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
 
-// Example route (remove or replace as needed)
+// ─── Routes ───────────────────────────────────────────────────────────
+const authRoutes      = require('./routes/authRoutes');
+const reportRoutes    = require('./routes/reportRoutes');
+const wardRoutes      = require('./routes/wardRoutes');
+const categoryRoutes  = require('./routes/categoryRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const adminRoutes     = require('./routes/adminRoutes');
+
+app.use('/api/auth',       authLimiter, authRoutes);
+app.use('/api/reports',    reportRoutes);
+app.use('/api/wards',      wardRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/analytics',  analyticsRoutes);
+app.use('/api/admin',      adminRoutes);
+
+// ─── Root redirect → login page ──────────────────────────────────────
 app.get('/', (req, res) => {
-  res.send('CivicPulse API is running!');
+  res.redirect('/pages/index.html');
 });
-
-
-// Quick categories endpoint
-app.get('/api/categories', async (req, res) => {
-  try {
-    const pool = require('./config/db');
-    const result = await pool.query(
-      `SELECT c.id, c.name, a.name AS authority
-       FROM categories c 
-       JOIN authorities a ON c.authority_id = a.id 
-       ORDER BY c.name`
-    );
-    res.json({ categories: result.rows });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch categories.' });
-  }
-});
-
-
-
-// API routes
-app.use('/api/reports', require('./routes/reportRoutes'));
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
 
 module.exports = app;

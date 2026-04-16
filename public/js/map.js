@@ -1,4 +1,6 @@
-const API = 'http://localhost:5000/api';
+// map.js — Leaflet map initialisation, markers, popups
+// Depends on: auth.js (API_BASE, esc, getToken)
+
 let leafletMap   = null;
 let markerLayer  = null;
 
@@ -26,7 +28,7 @@ function initMap() {
 async function loadMap() {
 	if (!leafletMap) return;
 	const status = document.getElementById('map-filter-status')?.value || '';
-	const url    = `${API}/reports/map${status ? '?status=' + status : ''}`;
+	const url    = `${API_BASE}/reports/map${status ? '?status=' + status : ''}`;
 
 	try {
 		const res  = await fetch(url);
@@ -48,12 +50,12 @@ async function loadMap() {
 
 			marker.bindPopup(`
 				<div style="min-width:200px;font-family:system-ui">
-					<strong style="font-size:14px">${r.title}</strong>
+					<strong style="font-size:14px">${esc(r.title)}</strong>
 					<div style="font-size:12px;color:#666;margin:4px 0">
-						${r.category_name || ''} &bull; ${r.ward_name || ''}
+						${esc(r.category_name)} &bull; ${esc(r.ward_name)}
 					</div>
 					<span style="font-size:11px;background:${color}22;color:${color};padding:2px 8px;border-radius:20px;font-weight:600">
-						${r.status.replace('_',' ').toUpperCase()}
+						${esc(r.status).replace('_',' ').toUpperCase()}
 					</span>
 					<br/><button onclick="viewReport(${r.id})"
 						style="margin-top:8px;padding:5px 12px;background:#1C7293;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px">
@@ -82,20 +84,20 @@ function loadRecentList(reports) {
 
 	el.innerHTML = reports.slice(0, 10).map(r => `
 		<div class="report-item" onclick="viewReport(${r.id})">
-			<div class="report-dot dot-${r.status}"></div>
+			<div class="report-dot dot-${esc(r.status)}"></div>
 			<div class="report-body">
-				<div class="report-title">${r.title}</div>
-				<div class="report-meta">${r.category_name || ''} &bull; ${r.ward_name || ''}</div>
+				<div class="report-title">${esc(r.title)}</div>
+				<div class="report-meta">${esc(r.category_name)} &bull; ${esc(r.ward_name)}</div>
 			</div>
-			<span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
+			<span class="badge badge-${esc(r.status)}">${esc(r.status).replace('_',' ')}</span>
 		</div>
 	`).join('');
 }
 
 async function viewReport(id) {
 	try {
-		const token = localStorage.getItem('cp_token');
-		const res   = await fetch(`${API}/reports/${id}`, {
+		const token = getToken();
+		const res   = await fetch(`${API_BASE}/reports/${id}`, {
 			headers: { 'Authorization': 'Bearer ' + token }
 		});
 		const data  = await res.json();
@@ -107,26 +109,26 @@ async function viewReport(id) {
 		document.getElementById('modal-title').textContent = r.title;
 		document.getElementById('modal-body').innerHTML = `
 			<div class="flex gap-2 items-center mb-2">
-				<span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
-				<span class="text-muted text-sm">${r.category_name || ''}</span>
+				<span class="badge badge-${esc(r.status)}">${esc(r.status).replace('_',' ')}</span>
+				<span class="text-muted text-sm">${esc(r.category_name)}</span>
 			</div>
-			<p style="font-size:14px;margin-bottom:12px">${r.description}</p>
+			<p style="font-size:14px;margin-bottom:12px">${esc(r.description)}</p>
 			<div class="grid-2 mb-2">
-				<div><span class="text-muted text-sm">Ward</span><br/><strong>${r.ward_name || '—'}</strong></div>
-				<div><span class="text-muted text-sm">Authority</span><br/><strong>${r.authority_name || 'Unassigned'}</strong></div>
-				<div><span class="text-muted text-sm">Submitted by</span><br/><strong>${r.submitted_by || '—'}</strong></div>
+				<div><span class="text-muted text-sm">Ward</span><br/><strong>${esc(r.ward_name) || '—'}</strong></div>
+				<div><span class="text-muted text-sm">Authority</span><br/><strong>${esc(r.authority_name) || 'Unassigned'}</strong></div>
+				<div><span class="text-muted text-sm">Submitted by</span><br/><strong>${esc(r.submitted_by) || '—'}</strong></div>
 				<div><span class="text-muted text-sm">Reported on</span><br/><strong>${new Date(r.created_at).toLocaleDateString('en-GB')}</strong></div>
 			</div>
-			${r.address ? `<p class="text-sm text-muted mb-2">📍 ${r.address}</p>` : ''}
+			${r.address ? `<p class="text-sm text-muted mb-2">📍 ${esc(r.address)}</p>` : ''}
 			<div style="margin-top:16px">
 				<p style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px">STATUS HISTORY</p>
 				${h.length === 0 ? '<p class="text-muted text-sm">No history yet.</p>' :
 					h.map(e => `
 						<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)">
-							<strong>${e.new_status?.replace('_',' ').toUpperCase() || ''}</strong>
-							<span class="text-muted"> — ${e.changed_by_name || 'System'}</span>
+							<strong>${esc(e.new_status)?.replace('_',' ').toUpperCase() || ''}</strong>
+							<span class="text-muted"> — ${esc(e.changed_by_name) || 'System'}</span>
 							<span class="text-muted"> — ${new Date(e.changed_at).toLocaleString('en-GB')}</span>
-							${e.note ? `<div style="color:var(--muted);margin-top:2px">${e.note}</div>` : ''}
+							${e.note ? `<div style="color:var(--muted);margin-top:2px">${esc(e.note)}</div>` : ''}
 						</div>
 					`).join('')
 				}
@@ -145,9 +147,9 @@ async function viewReport(id) {
 }
 
 async function upvoteReport(id) {
-	const token = localStorage.getItem('cp_token');
+	const token = getToken();
 	try {
-		const res  = await fetch(`${API}/reports/${id}/upvote`, {
+		const res  = await fetch(`${API_BASE}/reports/${id}/upvote`, {
 			method: 'POST',
 			headers: { 'Authorization': 'Bearer ' + token }
 		});
