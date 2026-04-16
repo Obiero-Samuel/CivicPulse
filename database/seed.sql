@@ -80,7 +80,7 @@ INSERT INTO authorities (name, description, contact_email) VALUES
 -- ════════════════════════════════════════════════════════════
 --  CATEGORIES — Issue types mapped to responsible authority
 -- ════════════════════════════════════════════════════════════
-INSERT INTO categories (name, description, authority_id) VALUES
+INSERT INTO categories (name, description, default_authority_id) VALUES
     -- Nairobi Water (id=1)
     ('Burst Pipe',            'Visible water pipe bursts or leaks on public roads or estates.',          1),
     ('Water Outage',          'Ward-wide or estate-level loss of water supply.',                         1),
@@ -215,7 +215,7 @@ INSERT INTO report_status_history (report_id, changed_by, old_status, new_status
 -- ============================================================
 
 INSERT INTO reports
-  (id, tracking_number, title, description, category_id, ward_id, resident_id, assigned_to, status, latitude, longitude, upvote_count)
+    (id, tracking_number, title, description, category_id, ward_id, user_id, authority_id, status, latitude, longitude, upvote_count)
 VALUES
   (4, 'CP-2026-00004','Burst water pipe flooding Westlands Road','Large burst pipe near Westlands roundabout. Water has been flowing for 2 days, flooding the road and nearby shops.',1,1,3,1,'in_progress',-1.2676,36.8033,14),
   (5, 'CP-2026-00005','Potholes on Ngong Road near Prestige Plaza','Multiple deep potholes causing accidents. A motorbike fell yesterday.',5,4,4,2,'submitted',-1.2921,36.7882,23),

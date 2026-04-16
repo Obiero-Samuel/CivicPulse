@@ -308,3 +308,92 @@ But the front lines are shifting. The dashboards, though precise, feel empty —
 - Harden every route, every validator, every job — so the system stands unbreakable before the final reckoning.
 
 The binding vow remains: every improvement, every fix, every flourish must be appended, never overwritten. The record is eternal.
+
+---
+
+## 16 April 2026 — Debugging Domain Expansion: Backend Resurrection & Port Liberation
+
+### Issue 1: Server Fails to Start — Port 5000 (EADDRINUSE)
+
+**Symptom:**
+- Running `npm run dev` crashed with `Error: listen EADDRINUSE: address already in use :::5000`.
+- Nodemon reported the app crashed, waiting for file changes.
+
+**Diagnosis:**
+- Port 5000 was already occupied by a previous Node.js process or another service.
+- Used `netstat -ano | findstr :5000` to identify the blocking process (PID 36700).
+- Terminated the process with `taskkill /PID 36700 /F`.
+
+**Resolution:**
+- Port 5000 was freed. Server could now bind and start successfully.
+
+---
+
+### Issue 2: SyntaxError in `authController.js` — Unexpected End of Input
+
+**Symptom:**
+- Server failed to start with `SyntaxError: Unexpected end of input` in `authController.js`.
+
+**Diagnosis:**
+- The `verifyEmail` function was incorrectly nested inside the `register` function, causing a missing closing brace and breaking the module export structure.
+
+**Resolution:**
+- Refactored `authController.js` to move `verifyEmail` out of `register`, ensuring all functions are properly closed and exported.
+- SyntaxError resolved; server started successfully.
+
+---
+
+### Issue 3: Server Restart & Validation
+
+**Action:**
+- After killing the blocking process and fixing the syntax error, ran `npm run dev`.
+- Nodemon started, server launched on port 5000, and PostgreSQL connection was established.
+- Confirmed backend is operational and ready for further development.
+
+---
+
+### Issue 4: Database Seed Data Review & Alignment
+
+**Action:**
+- Inspected `database/seed.sql` for schema alignment and demo data richness.
+- Confirmed: 17 Nairobi wards, 7 authorities, 20 categories, 5 test users, 15 sample reports, status history, and upvotes.
+- Ensured all seed data matches the current schema and supports dashboard population.
+
+---
+
+## 16 April 2026 — Schema Alignment: SQL Seed Data Fixes
+
+### Issue: Terminal Errors — `default_authority_id` and `user_id`
+
+**Symptom:**
+- Server logs showed errors: `column c.default_authority_id does not exist` and `column r.user_id does not exist` during API calls.
+- Demo data failed to load correctly, breaking dashboard and report features.
+
+**Diagnosis:**
+- `seed.sql` used `authority_id` in the `categories` table and `resident_id`/`assigned_to` in the `reports` table, but the schema expects `default_authority_id` and `user_id`/`authority_id`.
+
+**Resolution:**
+- Updated `seed.sql`:
+    - Changed `INSERT INTO categories` to use `default_authority_id`.
+    - Changed all `INSERT INTO reports` to use `user_id` and `authority_id` (not `resident_id`/`assigned_to`).
+- This aligns the seed data with the schema, resolving the errors and ensuring demo data loads as intended.
+
+**Status:**
+- All SQL errors fixed. Backend and dashboard now function with correct demo data.
+
+---
+
+## 16 April 2026 — Git Revert: Undoing a Mistaken Commit
+
+**Action:**
+- Ran `git revert 66d6f29fb6b7c47c2cb6e0354a5f456bdfc909e5` to undo a mistake that was pushed and pulled from the repository.
+
+**Reason:**
+- The commit introduced unwanted changes that needed to be reversed while preserving repository history.
+
+**Outcome:**
+- Git created a new commit that undoes the changes from the specified commit.
+- The repository history remains intact and collaborators are not disrupted.
+
+**Note:**
+- If further mistakes need to be undone, repeat with the relevant commit hash.
