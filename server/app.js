@@ -38,9 +38,19 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/analytics',  analyticsRoutes);
 app.use('/api/admin',      adminRoutes);
 
-// ─── Root redirect → login page ──────────────────────────────────────
+// ─── Root → landing page ─────────────────────────────────────────────
 app.get('/', (req, res) => {
-  res.redirect('/pages/index.html');
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// ─── 404 catch-all ───────────────────────────────────────────────────
+app.use((req, res) => {
+  // If it's an API route, send JSON
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Endpoint not found.' });
+  }
+  // Otherwise send the 404 page
+  res.status(404).sendFile(path.join(__dirname, '../public/pages/404.html'));
 });
 
 module.exports = app;

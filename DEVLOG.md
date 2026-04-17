@@ -555,3 +555,79 @@ Every change documented. Every file listed. The system now has:
 
 The domain expansion is complete. The system stands ready for assessment.
 
+---
+
+## 17 April 2026 — Infinite Void: Polish Phase
+
+The skeleton had muscle. The muscle had nerves. But it lacked skin — the surface layer that makes a system feel *finished*. Today, that skin was applied.
+
+### Toast Notification System — The Voice of the System
+
+Every `alert()` call in the codebase was a violation of modern UX. Those modal interruptions that freeze the browser and demand a click — erased.
+
+**New system: `toast.js`** — a self-contained IIFE exposing four methods:
+- `toast.success('Report submitted!')` — green gradient, ✅ icon
+- `toast.error('Something went wrong.')` — red gradient, ❌ icon
+- `toast.info('Your report was forwarded.')` — blue gradient, ℹ️ icon
+- `toast.warning('This action is irreversible.')` — amber gradient, ⚠️ icon
+
+Each toast slides in from the right, auto-dismisses after 4 seconds with a progress bar animation, and can be clicked to dismiss early. Stacked vertically with gap. No dependencies.
+
+**CSS added to `style.css`:** `.toast-container`, `.toast`, `.toast-success/error/info/warning`, slide-in/out keyframes, progress bar animation.
+
+All `alert()` calls in `map.js` (upvote) replaced with toast calls. Script loaded on all three dashboards.
+
+### Public Landing Page — The First Impression
+
+Previously, visiting `localhost:5000` redirected straight to the login form. No context, no persuasion, no brand presence.
+
+**New: `public/index.html`** — a full landing page with:
+- Fixed glassmorphic navigation bar with CivicPulse branding
+- Full-viewport hero section with animated gradient orbs and mesh grid
+- Headline: "Report Issues. Track Resolution. Demand Accountability."
+- Stats bar (17 Wards, 7 Authorities, 24/7 Tracking, 7-Day Escalation)
+- 6 feature cards with hover effects (geo-tagging, auto-routing, escalation, analytics, real-time updates, upvoting)
+- 4-step "How It Works" section with numbered gradient circles
+- CTA section with call to action
+- Site footer
+
+**Express route updated:** `app.get('/')` now serves `index.html` via `sendFile` instead of redirecting to login.
+
+### 404 Page — Grace Under Error
+
+Every unknown route now gets a styled 404 page instead of Express's default HTML error or a blank screen.
+
+- API routes (`/api/*`) return `{ error: 'Endpoint not found.' }` as JSON
+- All other routes serve `public/pages/404.html`
+- The page features the same animated orb background as auth pages, a massive gradient "404" heading, and navigation buttons back to home or login
+
+### Favicon
+
+Generated a CivicPulse brand icon (gradient CP monogram on dark navy). Added `<link rel="icon">` to all 7 HTML pages.
+
+### Mobile Responsiveness
+
+- Added hamburger menu CSS (`.hamburger`, hidden on desktop, visible on mobile)
+- Sidebar collapses on `max-width: 768px`, toggleable via hamburger click
+- Content area takes full width on mobile
+- Landing page hero, stats, and feature grid all responsive
+
+### Files Modified / Created
+
+| File | Change |
+|---|---|
+| `public/js/toast.js` | **[NEW]** Toast notification utility |
+| `public/index.html` | **[NEW]** Public landing page |
+| `public/pages/404.html` | **[NEW]** Styled 404 error page |
+| `public/assets/favicon.png` | **[NEW]** Brand favicon |
+| `public/css/style.css` | Toast CSS, hamburger, footer, empty-state, mobile responsive |
+| `public/js/map.js` | Replaced `alert()` → `toast.success/error` |
+| `public/pages/dashboard.html` | Added toast.js, hamburger toggle |
+| `public/pages/admin.html` | Added toast.js, favicon |
+| `public/pages/officer.html` | Added toast.js, favicon |
+| `public/pages/index.html` | Added favicon |
+| `public/pages/register.html` | Added favicon |
+| `server/app.js` | Root serves landing page, 404 catch-all added |
+
+The system is now assessment-ready. Every page has a favicon. Every error has a styled response. Every notification uses toasts. Every visitor sees a landing page before login.
+
