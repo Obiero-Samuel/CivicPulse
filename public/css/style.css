@@ -567,4 +567,159 @@ tr:hover td {
 @media (max-width: 768px) {
 	.grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 	.topnav { padding: 0 16px; }
+	.sidebar { display: none; }
+	.sidebar.open { display: flex; position: fixed; top: 60px; left: 0; bottom: 0; z-index: 999; width: 260px; box-shadow: var(--shadow-lg); }
+	.hamburger { display: flex !important; }
+	.content { margin-left: 0 !important; }
+}
+
+/* ── Hamburger (hidden on desktop) ─────────────────────────────────── */
+.hamburger {
+	display: none;
+	flex-direction: column;
+	gap: 4px;
+	cursor: pointer;
+	padding: 6px;
+	border: none;
+	background: none;
+}
+.hamburger span {
+	width: 20px;
+	height: 2px;
+	background: var(--text-secondary);
+	border-radius: 2px;
+	transition: var(--transition-fast);
+}
+.hamburger:hover span { background: var(--neon-cyan); }
+
+/* ── Toast Notifications ───────────────────────────────────────────── */
+.toast-container {
+	position: fixed;
+	top: 76px;
+	right: 20px;
+	z-index: 99999;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-width: 380px;
+	pointer-events: none;
+}
+.toast {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 20px;
+	border-radius: var(--radius-md);
+	font-size: 13px;
+	font-weight: 500;
+	color: #fff;
+	pointer-events: auto;
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	box-shadow: var(--shadow-lg);
+	animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+}
+.toast.hiding {
+	animation: toastSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.toast-icon {
+	font-size: 18px;
+	flex-shrink: 0;
+}
+.toast-msg { flex: 1; line-height: 1.4; }
+.toast-close {
+	font-size: 16px;
+	opacity: 0.5;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: var(--transition-fast);
+}
+.toast-close:hover { opacity: 1; }
+
+/* Toast progress bar */
+.toast-progress {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	height: 3px;
+	border-radius: 0 0 var(--radius-md) var(--radius-md);
+	animation: toastProgress 4s linear forwards;
+}
+
+.toast-success {
+	background: linear-gradient(135deg, rgba(16, 185, 129, 0.92), rgba(5, 150, 105, 0.92));
+	border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.toast-success .toast-progress { background: rgba(255,255,255,0.35); }
+
+.toast-error {
+	background: linear-gradient(135deg, rgba(239, 68, 68, 0.92), rgba(220, 38, 38, 0.92));
+	border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.toast-error .toast-progress { background: rgba(255,255,255,0.35); }
+
+.toast-info {
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.92), rgba(37, 99, 235, 0.92));
+	border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.toast-info .toast-progress { background: rgba(255,255,255,0.35); }
+
+.toast-warning {
+	background: linear-gradient(135deg, rgba(245, 158, 11, 0.92), rgba(217, 119, 6, 0.92));
+	border: 1px solid rgba(245, 158, 11, 0.3);
+	color: #1a1a1a;
+}
+.toast-warning .toast-progress { background: rgba(0,0,0,0.2); }
+
+@keyframes toastSlideIn {
+	from { opacity: 0; transform: translateX(100px); }
+	to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastSlideOut {
+	from { opacity: 1; transform: translateX(0); }
+	to   { opacity: 0; transform: translateX(100px); }
+}
+@keyframes toastProgress {
+	from { width: 100%; }
+	to   { width: 0%; }
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+.site-footer {
+	text-align: center;
+	padding: 20px 24px;
+	font-size: 12px;
+	color: var(--text-muted);
+	border-top: 1px solid var(--border);
+	background: var(--bg-secondary);
+}
+.site-footer a {
+	color: var(--neon-cyan);
+	font-weight: 600;
+}
+
+/* ── Empty state box ───────────────────────────────────────────────── */
+.empty-state-box {
+	text-align: center;
+	padding: 48px 24px;
+	color: var(--text-muted);
+}
+.empty-state-box img {
+	max-width: 120px;
+	margin-bottom: 16px;
+	opacity: 0.6;
+}
+.empty-state-box h4 {
+	font-size: 16px;
+	color: var(--text-secondary);
+	margin-bottom: 8px;
+}
+.empty-state-box p {
+	font-size: 13px;
+	max-width: 320px;
+	margin: 0 auto;
+	line-height: 1.6;
 }

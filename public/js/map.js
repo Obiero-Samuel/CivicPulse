@@ -154,10 +154,10 @@ async function upvoteReport(id) {
 			headers: { 'Authorization': 'Bearer ' + token }
 		});
 		const data = await res.json();
-		alert(res.ok ? '✅ Upvote recorded!' : data.error || 'Could not upvote.');
+		if (res.ok) { toast.success('Upvote recorded!'); } else { toast.error(data.error || 'Could not upvote.'); }
 		if (res.ok) viewReport(id);
 	} catch (err) {
-		alert('Network error.');
+		toast.error('Network error. Please try again.');
 	}
 }
 

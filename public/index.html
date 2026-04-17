@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="description" content="CivicPulse — A civic issue reporting and accountability platform for Nairobi estate residents. Report infrastructure problems, track resolution, and hold government authorities accountable."/>
+	<title>CivicPulse — Civic Accountability Engine</title>
+	<link rel="stylesheet" href="css/style.css"/>
+	<style>
+		body {
+			background: var(--bg-primary);
+			overflow-x: hidden;
+		}
+
+		/* ── Hero ──────────────────────────────────────────────── */
+		.hero {
+			position: relative;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 80px 24px 60px;
+			overflow: hidden;
+		}
+		.hero::before {
+			content: '';
+			position: absolute;
+			width: 800px; height: 800px;
+			background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+			top: -20%; left: -10%;
+			animation: heroOrb 20s ease-in-out infinite;
+		}
+		.hero::after {
+			content: '';
+			position: absolute;
+			width: 600px; height: 600px;
+			background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
+			bottom: -15%; right: -10%;
+			animation: heroOrb 25s ease-in-out infinite reverse;
+		}
+		@keyframes heroOrb {
+			0%, 100% { transform: translate(0, 0) scale(1); }
+			33%      { transform: translate(80px, -50px) scale(1.1); }
+			66%      { transform: translate(-40px, 70px) scale(0.95); }
+		}
+
+		.hero-grid {
+			position: absolute; inset: 0; z-index: 0;
+			background-image:
+				linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+				linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+			background-size: 60px 60px;
+		}
+
+		.hero-content {
+			position: relative;
+			z-index: 1;
+			max-width: 720px;
+			animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		.hero-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 18px;
+			background: rgba(99, 102, 241, 0.08);
+			border: 1px solid rgba(99, 102, 241, 0.20);
+			border-radius: var(--radius-full);
+			font-size: 12px;
+			font-weight: 700;
+			color: var(--neon-cyan);
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			margin-bottom: 28px;
+		}
+
+		.hero h1 {
+			font-size: clamp(2.5rem, 6vw, 4.2rem);
+			font-weight: 900;
+			color: var(--text-primary);
+			line-height: 1.1;
+			letter-spacing: -0.03em;
+			margin-bottom: 20px;
+		}
+		.hero h1 .gradient-text {
+			background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue), var(--neon-purple));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+
+		.hero-desc {
+			font-size: 17px;
+			color: var(--text-secondary);
+			max-width: 540px;
+			margin: 0 auto 36px;
+			line-height: 1.7;
+		}
+
+		.hero-cta {
+			display: flex;
+			gap: 14px;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+		.hero-cta .btn { padding: 14px 32px; font-size: 15px; }
+
+		.hero-stats {
+			display: flex;
+			gap: 48px;
+			justify-content: center;
+			margin-top: 56px;
+			padding-top: 36px;
+			border-top: 1px solid var(--border);
+		}
+		.hero-stat-value {
+			font-size: 28px;
+			font-weight: 900;
+			color: var(--text-primary);
+			letter-spacing: -0.02em;
+		}
+		.hero-stat-label {
+			font-size: 11px;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			margin-top: 4px;
+		}
+
+		/* ── Nav ───────────────────────────────────────────────── */
+		.landing-nav {
+			position: fixed;
+			top: 0; left: 0; right: 0;
+			z-index: 1000;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 16px 36px;
+			background: rgba(10, 14, 26, 0.75);
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
+			border-bottom: 1px solid var(--glass-border);
+		}
+		.landing-nav .brand {
+			font-size: 22px;
+			font-weight: 900;
+			color: var(--text-primary);
+			letter-spacing: -0.02em;
+		}
+		.landing-nav .brand span {
+			background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+		.landing-nav-links {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+		}
+		.landing-nav-links .btn { font-size: 13px; }
+
+		/* ── Features ──────────────────────────────────────────── */
+		.features {
+			padding: 100px 24px;
+			max-width: 1100px;
+			margin: 0 auto;
+		}
+		.features-header {
+			text-align: center;
+			margin-bottom: 64px;
+		}
+		.features-header h2 {
+			font-size: 32px;
+			font-weight: 800;
+			color: var(--text-primary);
+			margin-bottom: 12px;
+			letter-spacing: -0.02em;
+		}
+		.features-header p {
+			font-size: 15px;
+			color: var(--text-secondary);
+			max-width: 520px;
+			margin: 0 auto;
+		}
+
+		.features-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+		}
+		.feature-card {
+			background: var(--bg-card);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			padding: 32px 28px;
+			transition: var(--transition);
+			position: relative;
+			overflow: hidden;
+		}
+		.feature-card::before {
+			content: '';
+			position: absolute;
+			top: 0; left: 0; right: 0;
+			height: 3px;
+			background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+			opacity: 0;
+			transition: var(--transition);
+		}
+		.feature-card:hover {
+			border-color: var(--border-strong);
+			transform: translateY(-4px);
+			box-shadow: var(--shadow-glow-md);
+		}
+		.feature-card:hover::before { opacity: 1; }
+		.feature-card .icon {
+			font-size: 32px;
+			margin-bottom: 16px;
+			display: block;
+		}
+		.feature-card h3 {
+			font-size: 16px;
+			font-weight: 700;
+			color: var(--text-primary);
+			margin-bottom: 8px;
+		}
+		.feature-card p {
+			font-size: 13px;
+			color: var(--text-secondary);
+			line-height: 1.6;
+		}
+
+		/* ── How it works ──────────────────────────────────────── */
+		.how-it-works {
+			padding: 80px 24px;
+			background: var(--bg-secondary);
+			border-top: 1px solid var(--border);
+			border-bottom: 1px solid var(--border);
+		}
+		.how-header {
+			text-align: center;
+			margin-bottom: 56px;
+		}
+		.how-header h2 {
+			font-size: 32px; font-weight: 800; color: var(--text-primary);
+			margin-bottom: 12px; letter-spacing: -0.02em;
+		}
+		.how-header p {
+			font-size: 15px; color: var(--text-secondary);
+		}
+		.steps {
+			display: flex;
+			gap: 32px;
+			max-width: 900px;
+			margin: 0 auto;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+		.step {
+			text-align: center;
+			flex: 1;
+			min-width: 200px;
+			max-width: 260px;
+		}
+		.step-number {
+			width: 52px; height: 52px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+			color: #fff;
+			font-size: 20px;
+			font-weight: 800;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 16px;
+			box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+		}
+		.step h3 {
+			font-size: 15px; font-weight: 700; color: var(--text-primary);
+			margin-bottom: 8px;
+		}
+		.step p {
+			font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+		}
+
+		/* ── CTA ───────────────────────────────────────────────── */
+		.cta-section {
+			padding: 100px 24px;
+			text-align: center;
+			position: relative;
+			overflow: hidden;
+		}
+		.cta-section::before {
+			content: '';
+			position: absolute;
+			width: 500px; height: 500px;
+			background: radial-gradient(circle, rgba(99, 102, 241, 0.10) 0%, transparent 70%);
+			top: -30%; right: -10%;
+		}
+		.cta-section h2 {
+			font-size: 34px; font-weight: 900; color: var(--text-primary);
+			margin-bottom: 16px; letter-spacing: -0.02em;
+			position: relative; z-index: 1;
+		}
+		.cta-section p {
+			font-size: 16px; color: var(--text-secondary);
+			margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto;
+			position: relative; z-index: 1;
+		}
+		.cta-section .btn {
+			position: relative; z-index: 1;
+			padding: 16px 40px; font-size: 16px;
+		}
+
+		/* ── Responsive ────────────────────────────────────────── */
+		@media (max-width: 768px) {
+			.hero h1 { font-size: 2.2rem; }
+			.hero-stats { flex-direction: column; gap: 20px; }
+			.features-grid { grid-template-columns: 1fr; }
+			.landing-nav { padding: 12px 20px; }
+			.landing-nav-links .btn-ghost { display: none; }
+		}
+	</style>
+</head>
+<body>
+<!-- Nav -->
+<nav class="landing-nav">
+	<div class="brand">Civic<span>Pulse</span></div>
+	<div class="landing-nav-links">
+		<a href="pages/index.html" class="btn btn-ghost btn-sm">Sign in</a>
+		<a href="pages/register.html" class="btn btn-primary btn-sm">Get Started</a>
+	</div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+	<div class="hero-grid"></div>
+	<div class="hero-content">
+		<div class="hero-badge">🏛 Civic Accountability Engine</div>
+		<h1>
+			Report Issues.<br/>
+			Track Resolution.<br/>
+			<span class="gradient-text">Demand Accountability.</span>
+		</h1>
+		<p class="hero-desc">
+			CivicPulse empowers Nairobi estate residents to report infrastructure problems,
+			track their resolution in real-time, and hold government authorities publicly accountable
+			through data-driven transparency.
+		</p>
+		<div class="hero-cta">
+			<a href="pages/register.html" class="btn btn-primary">🚀 Start Reporting</a>
+			<a href="#features" class="btn btn-ghost">Learn More ↓</a>
+		</div>
+		<div class="hero-stats">
+			<div>
+				<div class="hero-stat-value">17</div>
+				<div class="hero-stat-label">Wards Covered</div>
+			</div>
+			<div>
+				<div class="hero-stat-value">7</div>
+				<div class="hero-stat-label">Authorities</div>
+			</div>
+			<div>
+				<div class="hero-stat-value">24/7</div>
+				<div class="hero-stat-label">Live Tracking</div>
+			</div>
+			<div>
+				<div class="hero-stat-value">7-Day</div>
+				<div class="hero-stat-label">Auto-Escalation</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Features -->
+<section class="features" id="features">
+	<div class="features-header">
+		<h2>Built for Accountability</h2>
+		<p>Every feature is designed to close the gap between citizens and the authorities responsible for their civic infrastructure.</p>
+	</div>
+	<div class="features-grid">
+		<div class="feature-card">
+			<span class="icon">📍</span>
+			<h3>Geo-Tagged Reports</h3>
+			<p>Pin civic issues to your exact location on an interactive Leaflet map. Reports include ward, GPS coordinates, and address for precise routing.</p>
+		</div>
+		<div class="feature-card">
+			<span class="icon">🔄</span>
+			<h3>Smart Auto-Routing</h3>
+			<p>Each report is automatically assigned to the correct government authority based on its category — no manual triage needed.</p>
+		</div>
+		<div class="feature-card">
+			<span class="icon">⏱</span>
+			<h3>7-Day Auto-Escalation</h3>
+			<p>Unresolved reports are automatically escalated after 7 days. No authority can ignore a problem without it becoming public.</p>
+		</div>
+		<div class="feature-card">
+			<span class="icon">📊</span>
+			<h3>Analytics Dashboard</h3>
+			<p>Admins see real-time charts — status distribution, category breakdowns, authority performance, and weekly accountability reports.</p>
+		</div>
+		<div class="feature-card">
+			<span class="icon">🔔</span>
+			<h3>Real-Time Updates</h3>
+			<p>Socket.IO powers live notifications. When an officer updates your report, you see it instantly — no page refresh needed.</p>
+		</div>
+		<div class="feature-card">
+			<span class="icon">🗳</span>
+			<h3>Community Upvoting</h3>
+			<p>Residents upvote issues that affect them most. High-vote reports surface faster, creating democratic pressure for resolution.</p>
+		</div>
+	</div>
+</section>
+
+<!-- How it Works -->
+<section class="how-it-works" id="how">
+	<div class="how-header">
+		<h2>How It Works</h2>
+		<p>From report to resolution in four simple steps.</p>
+	</div>
+	<div class="steps">
+		<div class="step">
+			<div class="step-number">1</div>
+			<h3>Report an Issue</h3>
+			<p>Submit a report with title, description, category, and location. The system routes it to the right authority automatically.</p>
+		</div>
+		<div class="step">
+			<div class="step-number">2</div>
+			<h3>Authority Responds</h3>
+			<p>The assigned officer reviews the report, updates its status, and adds resolution notes visible to the reporter.</p>
+		</div>
+		<div class="step">
+			<div class="step-number">3</div>
+			<h3>Track Progress</h3>
+			<p>Follow your report through every status change — from open to in-progress to resolved. Full history, fully transparent.</p>
+		</div>
+		<div class="step">
+			<div class="step-number">4</div>
+			<h3>Hold Accountable</h3>
+			<p>If no action is taken within 7 days, the report auto-escalates. Public analytics expose authority performance.</p>
+		</div>
+	</div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+	<h2>Your Community Deserves Better</h2>
+	<p>Join CivicPulse and start demanding the infrastructure and services your ward is entitled to.</p>
+	<a href="pages/register.html" class="btn btn-primary">Create Free Account →</a>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+	<p>CivicPulse © 2026 · Strathmore University · Nairobi, Kenya</p>
+</footer>
+</body>
+</html>
